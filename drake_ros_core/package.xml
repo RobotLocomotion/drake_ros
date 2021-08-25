@@ -10,6 +10,7 @@
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
+  <depend>pybind11-dev</depend>
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
   <depend>rosidl_runtime_c</depend>
