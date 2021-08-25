@@ -14,39 +14,31 @@
 #ifndef PYTHON_BINDINGS__QOS_TYPE_CASTER_HPP_
 #define PYTHON_BINDINGS__QOS_TYPE_CASTER_HPP_
 
-#include <pybind11/pybind11.h>
-
-#include <rclcpp/qos.hpp>
-
 #include <memory>
 
-namespace drake_ros_core
-{
+#include <pybind11/pybind11.h>
+#include <rclcpp/qos.hpp>
+
+namespace drake_ros_core {
 // Thin wrapper that adds default constructor
-class QoS : public rclcpp::QoS
-{
-public:
-  QoS()
-  : rclcpp::QoS(1) {}
+class QoS : public rclcpp::QoS {
+ public:
+  QoS() : rclcpp::QoS(1) {}
 };
 }  // namespace drake_ros_core
 
-namespace pybind11
-{
-namespace detail
-{
-template<>
-struct type_caster<drake_ros_core::QoS>
-{
-public:
+namespace pybind11 {
+namespace detail {
+template <>
+struct type_caster<drake_ros_core::QoS> {
+ public:
   // declares local 'value' of type rclcpp::QoS
   PYBIND11_TYPE_CASTER(drake_ros_core::QoS, _("rclpy.qos.QoSProfile"));
 
   // Convert from Python rclpy.qos.QoSProfile to rclcpp::QoS
-  bool load(handle src, bool)
-  {
+  bool load(handle src, bool) {
     /* Extract PyObject from handle */
-    PyObject * source = src.ptr();
+    PyObject* source = src.ptr();
 
     // history                          : enum int
     // depth                            : int
@@ -58,35 +50,35 @@ public:
     // liveliness_lease_duration        : rclpy.Duration
     // avoid_ros_namespace_conventions  : bool
 
-    PyObject * py_history = nullptr;
-    PyObject * py_depth = nullptr;
-    PyObject * py_reliability = nullptr;
-    PyObject * py_durability = nullptr;
-    PyObject * py_lifespan = nullptr;
-    PyObject * py_lifespan_ns = nullptr;
-    PyObject * py_deadline = nullptr;
-    PyObject * py_deadline_ns = nullptr;
-    PyObject * py_liveliness = nullptr;
-    PyObject * py_liveliness_lease_duration = nullptr;
-    PyObject * py_liveliness_lease_duration_ns = nullptr;
-    PyObject * py_avoid_ros_namespace_conventions = nullptr;
+    PyObject* py_history = nullptr;
+    PyObject* py_depth = nullptr;
+    PyObject* py_reliability = nullptr;
+    PyObject* py_durability = nullptr;
+    PyObject* py_lifespan = nullptr;
+    PyObject* py_lifespan_ns = nullptr;
+    PyObject* py_deadline = nullptr;
+    PyObject* py_deadline_ns = nullptr;
+    PyObject* py_liveliness = nullptr;
+    PyObject* py_liveliness_lease_duration = nullptr;
+    PyObject* py_liveliness_lease_duration_ns = nullptr;
+    PyObject* py_avoid_ros_namespace_conventions = nullptr;
 
     // Clean up references when function exits.
-    std::unique_ptr<void, std::function<void(void *)>> scope_exit(
-      nullptr, [&](void *) {
-        Py_XDECREF(py_avoid_ros_namespace_conventions);
-        Py_XDECREF(py_liveliness_lease_duration_ns);
-        Py_XDECREF(py_liveliness_lease_duration);
-        Py_XDECREF(py_liveliness);
-        Py_XDECREF(py_deadline_ns);
-        Py_XDECREF(py_deadline);
-        Py_XDECREF(py_lifespan_ns);
-        Py_XDECREF(py_lifespan);
-        Py_XDECREF(py_durability);
-        Py_XDECREF(py_reliability);
-        Py_XDECREF(py_depth);
-        Py_XDECREF(py_history);
-      });
+    std::unique_ptr<void, std::function<void(void*)>> scope_exit(
+        nullptr, [&](void*) {
+          Py_XDECREF(py_avoid_ros_namespace_conventions);
+          Py_XDECREF(py_liveliness_lease_duration_ns);
+          Py_XDECREF(py_liveliness_lease_duration);
+          Py_XDECREF(py_liveliness);
+          Py_XDECREF(py_deadline_ns);
+          Py_XDECREF(py_deadline);
+          Py_XDECREF(py_lifespan_ns);
+          Py_XDECREF(py_lifespan);
+          Py_XDECREF(py_durability);
+          Py_XDECREF(py_reliability);
+          Py_XDECREF(py_depth);
+          Py_XDECREF(py_history);
+        });
 
     size_t history;
     size_t depth;
@@ -128,12 +120,12 @@ public:
       return false;
     }
     py_liveliness_lease_duration =
-      PyObject_GetAttrString(source, "liveliness_lease_duration");
+        PyObject_GetAttrString(source, "liveliness_lease_duration");
     if (!py_liveliness_lease_duration) {
       return false;
     }
     py_avoid_ros_namespace_conventions =
-      PyObject_GetAttrString(source, "avoid_ros_namespace_conventions");
+        PyObject_GetAttrString(source, "avoid_ros_namespace_conventions");
     if (!py_avoid_ros_namespace_conventions) {
       return false;
     }
@@ -156,7 +148,8 @@ public:
         break;
       default:
         if (!PyErr_Occurred()) {
-          PyErr_Format(PyExc_ValueError, "Unsupported history policy %zu", history);
+          PyErr_Format(PyExc_ValueError, "Unsupported history policy %zu",
+                       history);
         }
         return false;
     }
@@ -168,11 +161,13 @@ public:
       case RMW_QOS_POLICY_RELIABILITY_RELIABLE:
       case RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT:
       case RMW_QOS_POLICY_RELIABILITY_UNKNOWN:
-        value.reliability(static_cast<rmw_qos_reliability_policy_t>(reliability));
+        value.reliability(
+            static_cast<rmw_qos_reliability_policy_t>(reliability));
         break;
       default:
         if (!PyErr_Occurred()) {
-          PyErr_Format(PyExc_ValueError, "Unsupported reliability policy %zu", reliability);
+          PyErr_Format(PyExc_ValueError, "Unsupported reliability policy %zu",
+                       reliability);
         }
         return false;
     }
@@ -188,7 +183,8 @@ public:
         break;
       default:
         if (!PyErr_Occurred()) {
-          PyErr_Format(PyExc_ValueError, "Unsupported durability policy %zu", durability);
+          PyErr_Format(PyExc_ValueError, "Unsupported durability policy %zu",
+                       durability);
         }
         return false;
     }
@@ -226,27 +222,29 @@ public:
         break;
       default:
         if (!PyErr_Occurred()) {
-          PyErr_Format(PyExc_ValueError, "Unsupported liveliness policy %zu", liveliness);
+          PyErr_Format(PyExc_ValueError, "Unsupported liveliness policy %zu",
+                       liveliness);
         }
         return false;
     }
 
     // liveliness_lease_duration
-    py_liveliness_lease_duration_ns = PyObject_GetAttrString(
-      py_liveliness_lease_duration, "nanoseconds");
+    py_liveliness_lease_duration_ns =
+        PyObject_GetAttrString(py_liveliness_lease_duration, "nanoseconds");
     if (!py_liveliness_lease_duration_ns) {
       return false;
     }
     liveliness_lease_duration_ns = PyNumber_AsSsize_t(
-      py_liveliness_lease_duration_ns, PyExc_OverflowError);
+        py_liveliness_lease_duration_ns, PyExc_OverflowError);
     if (PyErr_Occurred()) {
       return false;
     }
     value.liveliness_lease_duration(
-      rclcpp::Duration::from_nanoseconds(liveliness_lease_duration_ns));
+        rclcpp::Duration::from_nanoseconds(liveliness_lease_duration_ns));
 
     // avoid_ros_namespace_conventions
-    avoid_ros_namespace_conventions = PyObject_IsTrue(py_avoid_ros_namespace_conventions);
+    avoid_ros_namespace_conventions =
+        PyObject_IsTrue(py_avoid_ros_namespace_conventions);
     if (-1 == avoid_ros_namespace_conventions) {
       return false;
     }
@@ -256,11 +254,11 @@ public:
   }
 
   // Convert from Python rclcpp::QoS to rclpy.qos.QoSProfile
-  static handle cast(drake_ros_core::QoS src, return_value_policy policy, handle parent)
-  {
-    (void) src;
-    (void) policy;
-    (void) parent;
+  static handle cast(drake_ros_core::QoS src, return_value_policy policy,
+                     handle parent) {
+    (void)src;
+    (void)policy;
+    (void)parent;
     Py_RETURN_NOTIMPLEMENTED;
   }
 };
