@@ -6,7 +6,8 @@ The `multirobot.py` script enables RViz visualisation of an array of Kuka LBR ii
 It publishes the following topics:
 
 * `/tf` (all scene frames)
-* `/` ()
+* `/scene_markers/collision` (collision geometry of all the robots)
+* `/scene_markers/visual` (visual representation of all the robots)
 
 ## How to run the example
 
