@@ -1,2 +1,3 @@
 add_subdirectory(iiwa_manipulator)
+add_subdirectory(multirobot)
 add_subdirectory(rs_flip_flop)
