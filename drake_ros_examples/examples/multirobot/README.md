@@ -3,7 +3,10 @@
 ## Overview
 
 The `multirobot.py` script enables RViz visualisation of an array of Kuka LBR iiwa manipulators.
-It publishes the following topics:
+The manipulators are not controlled.
+The expected behaviour is for them to "flop" about under the influence of gravity as simulation time progresses.
+
+The simulation publishes the following topics:
 
 * `/tf` (all scene frames)
 * `/scene_markers/collision` (collision geometry of all the robots)
