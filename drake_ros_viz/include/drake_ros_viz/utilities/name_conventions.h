@@ -13,6 +13,7 @@
 // limitations under the License.
 #pragma once
 
+#include <optional>
 #include <string>
 #include <unordered_set>
 
@@ -21,20 +22,33 @@
 
 namespace drake_ros_viz {
 
-/** Retrieve conventional marker namespace for a given scene geometry.
- @param[in] inspector inspector for a given SceneGraph's data.
- @param[in] plants a set of MultibodyPlant instances from which to derive
-   semantically meaningful marker namespaces, if possible.
- @param[in] geometry_id target geometry ID.
- @returns the namespace for the marker
- @pre `geomtry_id` is associated with a registered geometry in the SceneGraph
-   implied by `inspector`.
- @pre all `plants` are associated with the SceneGraph implied by `inspector`.
+/** A functor that returns the marker namespace given information of a geometry.
+  @param[in] inspector inspector for a given SceneGraph's data.
+  @param[in] plants a set of MultibodyPlant instances from which to derive
+    semantically meaningful marker namespaces, if possible.
+  @param[in] geometry_id target geometry ID.
  */
-std::string GetMarkerNamespace(
-    const drake::geometry::SceneGraphInspector<double>& inspector,
-    const std::unordered_set<const drake::multibody::MultibodyPlant<double>*>&
-        plants,
-    const drake::geometry::GeometryId& geometry_id);
+using MarkerNamespaceFunction = std::function<std::string(
+    const drake::geometry::SceneGraphInspector<double>&,
+    const std::unordered_set<const drake::multibody::MultibodyPlant<double>*>&,
+    const drake::geometry::GeometryId)>;
+
+/** Returns a functor that generates a flat, non-hierarchical marker namespace,
+  comprised of the owning source name of the geometry, prefixed optionally by
+  marker_namespace_prefix.
+  @param[in] marker_namespace_prefix Optional prefix for the marker.
+  @returns the functor for generating the marker namespace.
+ */
+MarkerNamespaceFunction GetFlatMarkerNamespaceFunction(
+    const std::optional<std::string>& marker_namespace_prefix);
+
+/** Returns a functor that generates a hierarchical namespace (if possible) in
+  the form of 'model_instance_name/body_name/geometry_id_value'. This is
+  prefixed optionally by marker_namespace_prefix.
+  @param[in] marker_namespace_prefix Optional prefix for the marker.
+  @returns the functor for generating the marker namespace.
+ */
+MarkerNamespaceFunction GetHierarchicalMarkerNamspaceFunction(
+    const std::optional<std::string>& marker_namespace_prefix);
 
 }  // namespace drake_ros_viz

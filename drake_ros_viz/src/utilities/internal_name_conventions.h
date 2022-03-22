@@ -22,6 +22,13 @@
 namespace drake_ros_viz {
 namespace internal {
 
+bool IsEmptyName(const std::string& name) {
+  if (name.empty() || name == "::" || name == "/") {
+    return true;
+  }
+  return false;
+}
+
 std::string ReplaceAllOccurrences(std::string string, const std::string& target,
                                   const std::string& replacement) {
   std::string::size_type n = 0;
@@ -32,45 +39,64 @@ std::string ReplaceAllOccurrences(std::string string, const std::string& target,
   return string;
 }
 
+/* Formulate marker namespace with just the provided prefix as well as the
+  owning source name of the geometry.
+  @param[in] prefix user defined prefix for this marker namespace
+  @param[in] geometry_owning_source_name owning source name for the geometry
+ */
+std::string CalcMarkerNamespace(
+    const std::string& prefix, const std::string& geometry_owning_source_name) {
+  return prefix + ReplaceAllOccurrences(geometry_owning_source_name, "::", "/");
+}
+
 /* Formulate marker namespace given the model instance name, body name, body
-  index and geometry ID value.
+  index, geometry name and geometry ID value.
+  @param[in] prefix user defined prefix for this marker namespace
   @param[in] model_instance_name name of a given model instance.
   @param[in] body_name name of a given body.
   @param[in] body_index index of a given body.
+  @param[in] geometry_name name of a given geometry.
   @param[in] geometry_id_value value of a given geometry ID.
   @returns formulated marker namespace.
  */
 template <typename ElementIndexType>
-std::string CalcMarkerNamespace(const std::string& model_instance_name,
-                                const std::string& body_name,
-                                ElementIndexType body_index,
-                                int64_t geometry_id_value) {
+std::string CalcHierarchicalMarkerNamespace(
+    const std::string& prefix, const std::string& model_instance_name,
+    const std::string& body_name, ElementIndexType body_index,
+    const std::string& geometry_name, int64_t geometry_id_value) {
   std::stringstream ss;
-  ss << "/" << ReplaceAllOccurrences(model_instance_name, "::", "/") << "/";
+  ss << prefix << ReplaceAllOccurrences(model_instance_name, "::", "/") << "/";
 
-  if (body_name.empty()) {
+  if (IsEmptyName(body_name)) {
     ss << "unnamed_body_" << body_index << "/";
   } else {
     ss << ReplaceAllOccurrences(body_name, "::", "/") << "/";
   }
 
-  ss << geometry_id_value;
+  if (IsEmptyName(geometry_name)) {
+    ss << "unnamed_geometry_" << geometry_id_value;
+  } else {
+    ss << geometry_name;
+  }
+
   return ss.str();
 }
 
 /* Formulate marker namespace given the geometry source name, geometry name
   and geometry ID value.
+  @param[in] prefix user defined prefix for this marker namespace
   @param[in] geometry_source_name name of the source owning a given geometry.
   @param[in] geometry_name name of a given geometry.
   @parma[in] geometry_id_value value of a given geometry ID.
   @returns formulated marker namespace.
  */
-std::string CalcMarkerNamespace(const std::string& geometry_source_name,
-                                const std::string& geometry_name,
-                                int64_t geometry_id_value) {
+std::string CalcHierarchicalMarkerNamespace(
+    const std::string& prefix, const std::string& geometry_source_name,
+    const std::string& geometry_name, int64_t geometry_id_value) {
   std::stringstream ss;
-  ss << "/" << ReplaceAllOccurrences(geometry_source_name, "::", "/") << "/";
-  if (geometry_name.empty() || geometry_name == "/" || geometry_name == "::") {
+  ss << prefix << ReplaceAllOccurrences(geometry_source_name, "::", "/") << "/";
+
+  if (IsEmptyName(geometry_name)) {
     ss << "unnamed_geometry_" << geometry_id_value;
   } else {
     ss << ReplaceAllOccurrences(geometry_name, "::", "/");
