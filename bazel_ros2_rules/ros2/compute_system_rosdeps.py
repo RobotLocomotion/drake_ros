@@ -57,9 +57,8 @@ def compute_system_rosdeps(workspace_paths):
             encoding='utf-8')
     except subprocess.CalledProcessError as e:
         if e.stderr and 'rosdep init' in e.stderr:
-            # User probably needs to run install_prereqs.sh
             raise RuntimeError('The rosdep database is not initalized. '
-                    'Please run `sudo setup/install_prereqs.sh`')
+                    'Please run `rosdep init`')
         if e.stderr and 'rosdep update' in e.stderr:
             # Run this for the user
             subprocess.check_output(
