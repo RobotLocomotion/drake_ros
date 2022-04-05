@@ -43,14 +43,36 @@ def parse_arguments():
 
 
 def compute_system_rosdeps(workspace_paths):
+    share_paths = [  # leverage REP-122
+        path for workspace_path in workspace_paths
+        for path in workspace_path.glob('**/share')
+    ]
+
+    # Run a check to see if the rosdep database is ready to be used
+    cmd = ['rosdep', 'check', '--from-paths', share_paths[0]]
+    try:
+        subprocess.check_output(
+            cmd, env={'ROS_PYTHON_VERSION': '3'},
+            stderr=subprocess.PIPE,
+            encoding='utf-8')
+    except subprocess.CalledProcessError as e:
+        if e.stderr and 'rosdep init' in e.stderr:
+            # User probably needs to run install_prereqs.sh
+            raise RuntimeError('The rosdep database is not initalized. '
+                    'Please run `sudo setup/install_prereqs.sh`')
+        if e.stderr and 'rosdep update' in e.stderr:
+            # Run this for the user
+            subprocess.check_output(
+                ['rosdep', 'update'], env={'ROS_PYTHON_VERSION': '3'},
+                encoding='utf-8')
+        else:
+            raise RuntimeError(f'An unknown error has occured: {e}')
+
     cmd = [
         'rosdep', 'keys', '-i',
         '-t', 'buildtool_export',
         '-t', 'build_export',
-        '-t', 'exec', '--from-paths'
-    ] + [  # leverage REP-122
-        path for workspace_path in workspace_paths
-        for path in workspace_path.glob('**/share')
+        '-t', 'exec', '--from-paths', *share_paths
     ]
     output = subprocess.check_output(
         cmd, env={'ROS_PYTHON_VERSION': '3'},
