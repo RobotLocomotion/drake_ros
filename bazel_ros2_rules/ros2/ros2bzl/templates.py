@@ -64,7 +64,13 @@ def configure_package_cc_library(
     name, metadata, properties, dependencies, sandbox
 ):
     target_name = cc_name(name, metadata)
-    libraries = [sandbox(library) for library in properties['link_libraries']]
+    libraries = [
+        sandbox(library)
+        for library in properties['link_libraries']
+        # Assume only libraries that map to a relative path inside the
+        # sandbox need to be mentioned in BUILD.bazel
+        if not os.path.isabs(sandbox(library))
+    ]
     include_directories = [
         sandbox(include) for include in properties['include_directories']]
     local_includes = [
@@ -188,7 +194,11 @@ def configure_package_py_library(
             config.update({
                 'cc_name': c_name("_" + target_name, metadata),
                 'cc_libs': [
-                    sandbox(lib) for lib in properties['cc_libraries']],
+                    sandbox(lib) for lib in properties['cc_libraries']
+                    # Assume only libraries that  map to a relative path inside
+                    # the sandbox need to be mentioned in BUILD.bazel
+                    if not os.path.isabs(sandbox(lib))
+                ],
                 'cc_deps': cc_deps
             })
             data.append(c_label("_" + target_name, metadata))
