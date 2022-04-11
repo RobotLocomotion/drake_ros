@@ -58,10 +58,10 @@ function dpkg_install_from_curl() {
 
 apt install g++ unzip zlib1g-dev
 
-dpkg_install_from_curl \
-  bazel 4.2.1 \
-  https://releases.bazel.build/4.2.1/release/bazel_4.2.1-linux-x86_64.deb \
-  67447658b8313316295cd98323dfda2a27683456a237f7a3226b68c9c6c81b3a
+dpkg_install_from_wget \
+  bazel 5.1.0 \
+  https://releases.bazel.build/5.1.0/release/bazel_5.1.0-linux-x86_64.deb \
+  3d54055f764cfb61b5416f0a45d2d3df19c30d301d4da81565595cbe2e36a220
 
 # TODO(hidmic): install distributions from debians when Drake supports 22.04
 if [[ -z "${ROS2_DISTRO_PREFIX:-}" ]]; then
