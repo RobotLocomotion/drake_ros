@@ -24,6 +24,12 @@ from rclpy.qos import ReliabilityPolicy
 
 from test_msgs.msg import BasicTypes
 
+import sys
+print(sys.path)
+
+import os
+print(os.environ['PYTHONPATH'])
+
 import drake_ros_core
 from drake_ros_core import RosInterfaceSystem
 from drake_ros_core import RosPublisherSystem
