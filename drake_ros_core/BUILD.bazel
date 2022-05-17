@@ -87,7 +87,8 @@ ros_py_test(
   ':drake_ros_core_py',
   "@drake//bindings/pydrake",
   "@ros2//:rclpy_py",
-  "@ros2//:test_msgs_py"],
+  "@ros2//:test_msgs_py",
+  "@ros2//resources/rmw_isolation:rmw_isolation_py"],
   main = 'test/test_pub_sub.py',
   srcs = ['test/test_pub_sub.py'],
 )
