@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
 from pydrake.systems.framework import TriggerType
@@ -31,6 +33,10 @@ from drake_ros_core import RosSubscriberSystem
 
 
 def test_nominal_case():
+    if 'TEST_TMPDIR' in os.environ:
+        from rmw_isolation import isolate_rmw_by_path
+        isolate_rmw_by_path(os.environ['TEST_TMPDIR'])
+
     drake_ros_core.init()
 
     builder = DiagramBuilder()

@@ -19,6 +19,7 @@ py_library(
     # TODO(eric.cousineau, sloretz): This import path may shadow something in
     # the future.
     imports = ["."],
+    visibility = ["//visibility:public"]
 )
 
 ros_py_binary(
