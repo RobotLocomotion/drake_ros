@@ -14,7 +14,6 @@
 
 load("@ros2//:ros_cc.bzl", "ros_cc_test")
 load("@ros2//:ros_py.bzl", "ros_py_test")
-
 load(
     "@drake//tools/skylark:pybind.bzl",
     "pybind_py_library",
@@ -22,76 +21,81 @@ load(
 
 # TODO(sloretz) more granular targets for static linking
 cc_library(
-  name = "drake_ros_core",
-  hdrs = glob(["include/**/*.h"]),
-  strip_include_prefix = "include",
-  srcs = glob(["src/*.cc", "src/*.h"]),
-  deps = [
-    "@drake//systems/framework:leaf_system",
-    "@ros2//:rclcpp_cc",
-    "@ros2//:rosidl_runtime_c_cc",
-    "@ros2//:rosidl_typesupport_cpp_cc",
-  ],
-  visibility = ["//visibility:public"]
+    name = "drake_ros_core",
+    srcs = glob([
+        "src/*.cc",
+        "src/*.h",
+    ]),
+    hdrs = glob(["include/**/*.h"]),
+    strip_include_prefix = "include",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@drake//systems/framework:leaf_system",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:rosidl_runtime_c_cc",
+        "@ros2//:rosidl_typesupport_cpp_cc",
+    ],
 )
 
 cc_library(
-  name = "python_bindings_internal_hdrs",
-  hdrs = glob(["src/python_bindings/*.h"]),
-  strip_include_prefix = "src/python_bindings",
+    name = "python_bindings_internal_hdrs",
+    hdrs = glob(["src/python_bindings/*.h"]),
+    strip_include_prefix = "src/python_bindings",
 )
 
 pybind_py_library(
-  name = "drake_ros_core_py",
-  cc_deps = [
-    ":drake_ros_core",
-    ":python_bindings_internal_hdrs"],
-  cc_so_name = "_drake_ros_core",
-  cc_srcs = glob(["src/python_bindings/*.cc"]),
-  py_imports = ["src"],
-  py_srcs = glob(["src/drake_ros_core/**/*.py"]),
-  visibility = ["//visibility:public"]
+    name = "drake_ros_core_py",
+    cc_deps = [
+        ":drake_ros_core",
+        ":python_bindings_internal_hdrs",
+    ],
+    cc_so_name = "_drake_ros_core",
+    cc_srcs = glob(["src/python_bindings/*.cc"]),
+    py_imports = ["src"],
+    py_srcs = glob(["src/drake_ros_core/**/*.py"]),
+    visibility = ["//visibility:public"],
 )
 
 ros_cc_test(
-  name = "test_pub_sub",
-  deps = [
-    "@com_google_googletest//:gtest_main",
-    "@drake//systems/analysis:simulator",
-    "@drake//systems/framework:diagram_builder",
-    "@ros2//:rclcpp_cc",
-    "@ros2//:test_msgs_cc",
-    "@ros2//resources/rmw_isolation:rmw_isolation_cc",
-    ":drake_ros_core",
-  ],
-  rmw_implementation = "rmw_cyclonedds_cpp",
-  local_defines = ["USE_RMW_ISOLATION"],
-  size = "small",
-  srcs = ["test/test_pub_sub.cc"],
+    name = "test_pub_sub",
+    size = "small",
+    srcs = ["test/test_pub_sub.cc"],
+    local_defines = ["USE_RMW_ISOLATION"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":drake_ros_core",
+        "@com_google_googletest//:gtest_main",
+        "@drake//systems/analysis:simulator",
+        "@drake//systems/framework:diagram_builder",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:test_msgs_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
 )
 
 ros_cc_test(
-  name = "test_drake_ros",
-  deps = [
-    "@com_google_googletest//:gtest_main",
-    "@ros2//:rclcpp_cc",
-    "@ros2//resources/rmw_isolation:rmw_isolation_cc",
-    ":drake_ros_core",
-  ],
-  local_defines = ["USE_RMW_ISOLATION"],
-  rmw_implementation = "rmw_cyclonedds_cpp",
-  size = "small",
-  srcs = ["test/test_drake_ros.cc"],
+    name = "test_drake_ros",
+    size = "small",
+    srcs = ["test/test_drake_ros.cc"],
+    local_defines = ["USE_RMW_ISOLATION"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":drake_ros_core",
+        "@com_google_googletest//:gtest_main",
+        "@ros2//:rclcpp_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
 )
 
 ros_py_test(
-  name = 'test_pub_sub_py',
-  deps = [
-  ':drake_ros_core_py',
-  "@drake//bindings/pydrake",
-  "@ros2//:rclpy_py",
-  "@ros2//:test_msgs_py",
-  "@ros2//resources/rmw_isolation:rmw_isolation_py"],
-  main = 'test/test_pub_sub.py',
-  srcs = ['test/test_pub_sub.py'],
+    name = "test_pub_sub_py",
+    srcs = ["test/test_pub_sub.py"],
+    main = "test/test_pub_sub.py",
+    deps = [
+        ":drake_ros_core_py",
+        "@drake//bindings/pydrake",
+        "@ros2//:rclpy_py",
+        "@ros2//:test_msgs_py",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+    ],
 )

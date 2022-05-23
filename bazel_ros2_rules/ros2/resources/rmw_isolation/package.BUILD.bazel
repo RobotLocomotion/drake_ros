@@ -19,7 +19,7 @@ py_library(
     # TODO(eric.cousineau, sloretz): This import path may shadow something in
     # the future.
     imports = ["."],
-    visibility = ["//visibility:public"]
+    visibility = ["//visibility:public"],
 )
 
 ros_py_binary(
@@ -39,13 +39,14 @@ cc_library(
     local_defines = [
         "RMW_ISOLATION_ROOTPATH={}/{}".format(
             repository_name().strip("@") or ".",
-            package_name())
+            package_name(),
+        ),
     ],
     deps = [
         "@bazel_tools//tools/cpp/runfiles",
         "//:rclcpp_cc",
     ],
-    visibility = ["//visibility:public"]
+    visibility = ["//visibility:public"],
 )
 
 ros_py_binary(
@@ -57,7 +58,7 @@ ros_py_binary(
         "//:std_msgs_py",
         ":rmw_isolation_py",
     ],
-    rmw_implementation = 'rmw_cyclonedds_cpp',
+    rmw_implementation = "rmw_cyclonedds_cpp",
     legacy_create_init = False,
 )
 
@@ -70,7 +71,7 @@ ros_py_binary(
         "//:std_msgs_py",
         ":rmw_isolation_py",
     ],
-    rmw_implementation = 'rmw_cyclonedds_cpp',
+    rmw_implementation = "rmw_cyclonedds_cpp",
     legacy_create_init = False,
 )
 
@@ -96,7 +97,7 @@ ros_cc_binary(
         "//:std_msgs_cc",
         ":rmw_isolation_cc",
     ],
-    rmw_implementation = 'rmw_cyclonedds_cpp',
+    rmw_implementation = "rmw_cyclonedds_cpp",
 )
 
 ros_cc_binary(
@@ -107,7 +108,7 @@ ros_cc_binary(
         "//:std_msgs_cc",
         ":rmw_isolation_cc",
     ],
-    rmw_implementation = 'rmw_cyclonedds_cpp',
+    rmw_implementation = "rmw_cyclonedds_cpp",
 )
 
 sh_test(
