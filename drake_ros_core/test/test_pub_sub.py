@@ -30,11 +30,11 @@ import drake_ros_core
 from drake_ros_core import RosInterfaceSystem
 from drake_ros_core import RosPublisherSystem
 from drake_ros_core import RosSubscriberSystem
+from rmw_isolation import isolate_rmw_by_path
 
 
 def test_nominal_case():
     if 'TEST_TMPDIR' in os.environ:
-        from rmw_isolation import isolate_rmw_by_path
         isolate_rmw_by_path(os.environ['TEST_TMPDIR'])
 
     drake_ros_core.init()
