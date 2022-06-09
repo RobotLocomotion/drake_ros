@@ -53,6 +53,7 @@ pybind_py_library(
     cc_srcs = glob(["src/python_bindings/*.cc"]),
     py_imports = ["src"],
     py_srcs = glob(["src/drake_ros_core/**/*.py"]),
+    visibility = ["//visibility:public"],
 )
 
 ros_cc_test(
