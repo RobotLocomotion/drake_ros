@@ -1,3 +1,13 @@
+"""
+Test sentinel environment variable handling in dload shims.
+
+These tests check that shimmed executables set environment variables normally,
+but skip modifying environment variables when a sentinel variable is set.
+This is used to avoid modifying environment variables twice when a binary
+wrapped with a dload shim is called in a subprocess of another binary that was
+also wrapped in a dload shim.
+"""
+
 import json
 import os
 import subprocess
