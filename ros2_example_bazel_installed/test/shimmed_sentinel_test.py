@@ -25,6 +25,8 @@ class TestShim(unittest.TestCase):
     def setUp(self):
         assert SHIM_SENTINEL not in os.environ
 
+        self._mock_shimmed_env = {SHIM_SENTINEL: ""}
+
     def test_shimmed_once_cc(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_cc")
@@ -35,7 +37,7 @@ class TestShim(unittest.TestCase):
     def test_mock_shimmed_twice_cc(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_cc",
-            env={SHIM_SENTINEL: ""})
+            env=self._mock_shimmed_env)
         result = json.loads(stdout)
         self.assertTrue(result['shimmed'])
         self.assertFalse(result['AMENT_PREFIX_PATH present'])
@@ -50,7 +52,7 @@ class TestShim(unittest.TestCase):
     def test_mock_shimmed_twice_py(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_py",
-            env={SHIM_SENTINEL: ""})
+            env=self._mock_shimmed_env)
         result = json.loads(stdout)
         self.assertTrue(result['shimmed'])
         self.assertFalse(result['AMENT_PREFIX_PATH present'])
