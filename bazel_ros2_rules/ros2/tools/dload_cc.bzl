@@ -63,46 +63,52 @@ int main(int argc, const char * argv[]) {{
     }}
   }}
 
-  // Apply actions.
-  std::vector<std::string> names = {names};
-  std::vector<std::vector<std::string>> actions = {actions};  // NOLINT
-  for (size_t i = 0; i < names.size(); ++i) {{
-    std::stringstream value_stream;
-    if (actions[i][0] == "replace") {{
-      assert(actions[i].size() == 2);
-      value_stream << actions[i][1];
-    }} else if (actions[i][0] == "set-if-not-set") {{
-      assert(actions[i].size() == 2);
-      if (nullptr != getenv(names[i].c_str())) {{
-        continue;
+  // Sentinel indicates if the executable has already been shimmed
+  const char * kShimmedSentinel = "_BAZEL_ROS2_RULES_SHIMMED";
+
+  if (nullptr == getenv(kShimmedSentinel)) {{
+    // Apply actions.
+    std::vector<std::string> names = {names};
+    std::vector<std::vector<std::string>> actions = {actions};  // NOLINT
+    for (size_t i = 0; i < names.size(); ++i) {{
+      std::stringstream value_stream;
+      if (actions[i][0] == "replace") {{
+        assert(actions[i].size() == 2);
+        value_stream << actions[i][1];
+      }} else if (actions[i][0] == "set-if-not-set") {{
+        assert(actions[i].size() == 2);
+        if (nullptr != getenv(names[i].c_str())) {{
+          continue;
+        }}
+        value_stream << actions[i][1];
+      }} else if (actions[i][0] == "path-replace") {{
+        assert(actions[i].size() == 2);
+        value_stream << runfiles->Rlocation(actions[i][1]);
+      }} else if (actions[i][0] == "path-prepend") {{
+        assert(actions[i].size() >= 2);
+        for (size_t j = 1; j < actions[i].size(); ++j) {{
+          value_stream << runfiles->Rlocation(actions[i][j]) << ":";
+        }}
+
+        const char * raw_value = getenv(names[i].c_str());
+        if (raw_value != nullptr) {{
+          value_stream << raw_value;
+        }}
+      }} else {{
+        assert(false);  // should never get here
       }}
-      value_stream << actions[i][1];
-    }} else if (actions[i][0] == "path-replace") {{
-      assert(actions[i].size() == 2);
-      value_stream << runfiles->Rlocation(actions[i][1]);
-    }} else if (actions[i][0] == "path-prepend") {{
-      assert(actions[i].size() >= 2);
-      for (size_t j = 1; j < actions[i].size(); ++j) {{
-        value_stream << runfiles->Rlocation(actions[i][j]) << ":";
+      std::string value = value_stream.str();
+
+      std::string::size_type location;
+      if ((location = value.find("$PWD")) != std::string::npos) {{
+        value.replace(location, 4, std::filesystem::current_path());
       }}
 
-      const char * raw_value = getenv(names[i].c_str());
-      if (raw_value != nullptr) {{
-        value_stream << raw_value;
+      if (setenv(names[i].c_str(), value.c_str(), 1) != 0) {{
+        std::cerr << "DLOAD SHIM ERROR: failed to set " << names[i] << std::endl;
       }}
-    }} else {{
-      assert(false);  // should never get here
     }}
-    std::string value = value_stream.str();
-
-    std::string::size_type location;
-    if ((location = value.find("$PWD")) != std::string::npos) {{
-      value.replace(location, 4, std::filesystem::current_path());
-    }}
-
-    if (setenv(names[i].c_str(), value.c_str(), 1) != 0) {{
-      std::cerr << "DLOAD SHIM ERROR: failed to set " << names[i] << std::endl;
-    }}
+    setenv(kShimmedSentinel, "", 1);
   }}
 
   const std::string executable_path =

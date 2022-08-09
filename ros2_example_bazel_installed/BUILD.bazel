@@ -1,7 +1,13 @@
 # -*- python -*-
 
-load("@ros2//:ros_cc.bzl", "ros_cc_test")
-load("@ros2//:ros_py.bzl", "ros_py_test")
+load("@ros2//:ros_cc.bzl",
+    "ros_cc_binary",
+    "ros_cc_test",
+)
+load("@ros2//:ros_py.bzl",
+    "ros_py_binary",
+    "ros_py_test",
+)
 load("//tools:cmd_test.bzl", "cmd_test")
 
 # TODO(hidmic): make linter more user-friendly
@@ -31,4 +37,31 @@ ros_py_test(
     main = "test/runfiles_test.py",
     deps = ["@bazel_tools//tools/python/runfiles"],
     data = ["test/runfiles_test_data.txt"],
+)
+
+ros_cc_binary(
+    name = "shimmed_sentinel_cc",
+    srcs = ["test/shimmed_sentinel.cc"],
+)
+
+ros_py_binary(
+    name = "shimmed_sentinel_py",
+    srcs = ["test/shimmed_sentinel.py"],
+    main = "test/shimmed_sentinel.py",
+)
+
+sh_test(
+    name = "shimmed_sentinel_cc_test",
+    size = "small",
+    srcs = ["test/shimmed_sentinel_test.sh"],
+    args = ["$(location :shimmed_sentinel_cc)"],
+    data = [":shimmed_sentinel_cc"],
+)
+
+sh_test(
+    name = "shimmed_sentinel_py_test",
+    size = "small",
+    srcs = ["test/shimmed_sentinel_test.sh"],
+    args = ["$(location :shimmed_sentinel_py)"],
+    data = [":shimmed_sentinel_py"],
 )
