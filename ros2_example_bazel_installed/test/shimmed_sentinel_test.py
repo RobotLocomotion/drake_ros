@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import unittest
 
@@ -20,6 +21,9 @@ def run_bazel_target(target, *args, env=None):
 
 
 class TestShim(unittest.TestCase):
+
+    def setUp(self):
+        assert SHIM_SENTINEL not in os.environ
 
     def test_shimmed_once_cc(self):
         stdout = run_bazel_target(
