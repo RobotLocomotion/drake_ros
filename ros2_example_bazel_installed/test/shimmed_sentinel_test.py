@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import json
 import subprocess
 import unittest
 
@@ -24,32 +25,32 @@ class TestShim(unittest.TestCase):
     def test_shimmed_once_cc(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_cc")
-        self.assertEqual(
-            "shimmed: yes AMENT_PREFIX_PATH present: yes",
-            stdout)
+        result = json.loads(stdout)
+        self.assertTrue(result['shimmed'])
+        self.assertTrue(result['AMENT_PREFIX_PATH present'])
 
     def test_mock_shimmed_twice_cc(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_cc",
             env={"_BAZEL_ROS2_RULES_SHIMMED": ""})
-        self.assertEqual(
-            "shimmed: yes AMENT_PREFIX_PATH present: no",
-            stdout)
+        result = json.loads(stdout)
+        self.assertTrue(result['shimmed'])
+        self.assertFalse(result['AMENT_PREFIX_PATH present'])
 
     def test_shimmed_once_py(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_py")
-        self.assertEqual(
-            "shimmed: yes AMENT_PREFIX_PATH present: yes",
-            stdout.strip())
+        result = json.loads(stdout)
+        self.assertTrue(result['shimmed'])
+        self.assertTrue(result['AMENT_PREFIX_PATH present'])
 
     def test_mock_shimmed_twice_py(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_py",
             env={"_BAZEL_ROS2_RULES_SHIMMED": ""})
-        self.assertEqual(
-            "shimmed: yes AMENT_PREFIX_PATH present: no",
-            stdout.strip())
+        result = json.loads(stdout)
+        self.assertTrue(result['shimmed'])
+        self.assertFalse(result['AMENT_PREFIX_PATH present'])
 
 
 if __name__ == '__main__':
