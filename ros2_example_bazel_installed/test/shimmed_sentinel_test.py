@@ -4,6 +4,8 @@ import unittest
 
 from bazel_tools.tools.python.runfiles import runfiles
 
+SHIM_SENTINEL = "_BAZEL_ROS2_RULES_SHIMMED"
+
 
 def run_bazel_target(target, *args, env=None):
     """Run a bazel executable target and return stdout."""
@@ -30,7 +32,7 @@ class TestShim(unittest.TestCase):
     def test_mock_shimmed_twice_cc(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_cc",
-            env={"_BAZEL_ROS2_RULES_SHIMMED": ""})
+            env={SHIM_SENTINEL: ""})
         result = json.loads(stdout)
         self.assertTrue(result['shimmed'])
         self.assertFalse(result['AMENT_PREFIX_PATH present'])
@@ -45,7 +47,7 @@ class TestShim(unittest.TestCase):
     def test_mock_shimmed_twice_py(self):
         stdout = run_bazel_target(
             "ros2_example_bazel_installed/shimmed_sentinel_py",
-            env={"_BAZEL_ROS2_RULES_SHIMMED": ""})
+            env={SHIM_SENTINEL: ""})
         result = json.loads(stdout)
         self.assertTrue(result['shimmed'])
         self.assertFalse(result['AMENT_PREFIX_PATH present'])
