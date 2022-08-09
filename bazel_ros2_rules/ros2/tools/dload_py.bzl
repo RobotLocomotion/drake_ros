@@ -20,7 +20,6 @@ import sys
 
 from bazel_tools.tools.python.runfiles import runfiles
 
-
 SHIMMED_SENTINEL = "_BAZEL_ROS2_RULES_SHIMMED";
 
 
