@@ -50,18 +50,14 @@ ros_py_binary(
     main = "test/shimmed_sentinel.py",
 )
 
-sh_test(
-    name = "shimmed_sentinel_cc_test",
-    size = "small",
-    srcs = ["test/shimmed_sentinel_test.sh"],
-    args = ["$(location :shimmed_sentinel_cc)"],
-    data = [":shimmed_sentinel_cc"],
-)
-
-sh_test(
-    name = "shimmed_sentinel_py_test",
-    size = "small",
-    srcs = ["test/shimmed_sentinel_test.sh"],
-    args = ["$(location :shimmed_sentinel_py)"],
-    data = [":shimmed_sentinel_py"],
+py_test(
+    name = "shimmed_sentinel_test",
+    srcs = ["test/shimmed_sentinel_test.py"],
+    deps = [
+        "@bazel_tools//tools/python/runfiles"
+    ],
+    data = [
+        ":shimmed_sentinel_cc",
+        ":shimmed_sentinel_py",
+    ],
 )
