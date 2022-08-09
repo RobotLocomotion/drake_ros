@@ -12,7 +12,6 @@ def run_bazel_target(target, *args, env=None):
     r = runfiles.Create()
     if env is None:
         env = {}
-    env.update(r.EnvVars())
     p = subprocess.Popen(
         [r.Rlocation(target)] + list(args),
         env=env,
