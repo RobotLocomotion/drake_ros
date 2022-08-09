@@ -146,5 +146,10 @@ C/C++ binaries that have such requirements. Using a C++ shim for C++ binaries
 simplifies UX during debugging sessions, as fork-follow behavior in common
 debuggers like gdb and lldb makes it transparent.
 
+This shim sets the environment variable `_BAZEL_ROS2_RULES_SHIMMED`. Processes
+can check for the presence of it to see if they have been shimmed. If the shim
+discovers the environment variable has already been set then it will not modify
+any environment variables.
+
 See do_dload_shim() documentation for further reference.
 """
