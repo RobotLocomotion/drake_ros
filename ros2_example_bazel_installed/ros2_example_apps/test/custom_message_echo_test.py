@@ -8,7 +8,7 @@ from rmw_isolation import isolate_rmw_by_path
 def main():
     if "TEST_TMPDIR" in os.environ:
         isolate_rmw_by_path(os.environ["TEST_TMPDIR"])
-        os.environ["HOME"] = os.path.join(os.environ["TEST_TMPDIR"])
+        os.environ["ROS_HOME"] = os.path.join(os.environ["TEST_TMPDIR"])
 
     manifest = runfiles.Create()
     ros2_bin = manifest.Rlocation("ros2/ros2")

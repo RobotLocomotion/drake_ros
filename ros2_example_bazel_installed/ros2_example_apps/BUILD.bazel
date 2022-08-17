@@ -145,6 +145,7 @@ ros_py_test(
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
     ],
     data = [
+        ":ros2_example_apps_msgs_ament_index",
         ":simple_talker",
         "@ros2//:ros2",
     ],

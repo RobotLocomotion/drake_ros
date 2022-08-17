@@ -11,6 +11,15 @@ load(
     "calculate_rosidl_capitalization"
 )
 
+AmentResourceIndex = provider(
+    fields = ["prefix"],
+)
+
+RosInterfaces = provider(
+    fields = ["interfaces"],
+)
+
+
 def _as_idl_tuple(file):
     """
     Returns IDL tuple for a file as expected by `rosidl` commands.
@@ -110,6 +119,7 @@ def _rosidl_translate_genrule_impl(ctx):
         ),
         outputs = ctx.outputs.translated_interfaces
     )
+    return [RosInterfaces(interfaces = ctx.outputs.translated_interfaces)]
 
 rosidl_translate_genrule = rule(
     attrs = dict(
@@ -144,6 +154,96 @@ Args:
 
 See `rosidl translate` CLI for further reference.
 """
+
+def _join_paths(*args):
+    # TODO(sloretz) does bazel have tools for paths? SO says pull in skylib.
+    # Remove trailing slashes
+    no_trailing_slashes = []
+    for arg in args:
+        if arg.endswith("/"):
+            no_trailing_slashes.append(arg[:-1])
+        else:
+            no_trailing_slashes.append(arg)
+
+    # remove leading slashes after the first argument
+    args = [no_trailing_slashes[0]]
+    for arg in no_trailing_slashes[1:]:
+        if arg.startswith("/"):
+            args.append(arg[1:])
+        else:
+            args.append(arg)
+
+    print("final args", args)
+    return "/".join(args)
+
+def _rosidl_generate_ament_index_entry_impl(ctx):
+    # Declare interface files in a file under the rosidl_interfaces resource.
+    # Directory names are important.
+    # https://github.com/ament/ament_cmake/blob/master/ament_cmake_core/
+    # doc/resource_index.md#file-system-index-layout
+    print("Declaring manifest", ctx.attr.prefix, ctx.attr.group)
+    print(_join_paths(
+            ctx.attr.prefix,
+            'share/ament_index/resource_index/rosidl_interfaces/',
+            ctx.attr.group,
+        ))
+    manifest_path = _join_paths(
+        ctx.attr.prefix,
+        'share/ament_index/resource_index/rosidl_interfaces/',
+        ctx.attr.group,
+    )
+    manifest_out = ctx.actions.declare_file(manifest_path)
+
+    # Gather interface files from arguments which may be rules or files.
+    interface_files = []
+    for input_file_or_rule in ctx.attr.interfaces:
+        if RosInterfaces in input_file_or_rule:
+            rule = input_file_or_rule
+            for file in rule[RosInterfaces].interfaces:
+                interface_files.append(file)
+        else:
+            input_file = input_file_or_rule
+            for file in input_file.files.to_list():
+                interface_files.append(file)
+
+    # Reduce names to "{msg|srv|action}/{message name}.{msg|srv|action|idl}
+    rosidl_interfaces_manifest = []
+    for file in interface_files:
+        # file.short_path is:
+        # {some path}/{msg|srv|action}/{message name}.{msg|srv|action|idl}
+        file_name = file.short_path.split("/")[-1]
+        interface_type = file.short_path.split("/")[-2]
+        rosidl_interfaces_manifest.append(interface_type + "/" + file_name)
+
+    ctx.actions.write(
+        output = manifest_out,
+        content = "\n".join(rosidl_interfaces_manifest)
+    )
+
+    # Symlink interface files into the share directory
+    runfiles_symlinks = {manifest_path: manifest_out}
+    for path, short_path in zip(interface_files, rosidl_interfaces_manifest):
+        symlink_path = _join_paths(
+            ctx.attr.prefix, "share", ctx.attr.group, short_path)
+        runfiles_symlinks[symlink_path] = path
+
+    ctx.runfiles(root_symlinks = runfiles_symlinks)
+
+    return [
+        AmentResourceIndex(prefix = ctx.attr.prefix)
+    ]
+
+rosidl_generate_ament_index_entry = rule(
+    attrs = dict(
+        group = attr.string(mandatory = True),
+        interfaces = attr.label_list(
+            mandatory = True, allow_empty = False, allow_files = True),
+        prefix = attr.string(default = "."),
+    ),
+    implementation = _rosidl_generate_ament_index_entry_impl,
+    output_to_genfiles = True,
+    provides = [AmentResourceIndex],
+)
 
 def _deduce_source_parts(interface_path):
     """
@@ -1049,6 +1149,14 @@ def rosidl_interfaces_group(
         interfaces = interfaces,
         includes = [_make_public_label(dep, "_defs") for dep in deps],
         **kwargs
+    )
+
+    # TODO(sloretz) create ament index entry here
+    # How to make the genrule below depend on it?
+    rosidl_generate_ament_index_entry(
+        name = name + "_ament_index",
+        group = group or name,
+        interfaces = [name + "_defs"] + interfaces,
     )
 
     rosidl_cc_support(
