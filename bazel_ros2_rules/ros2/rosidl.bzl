@@ -1,6 +1,8 @@
 # -*- python -*-
 
+load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@python_dev//:version.bzl", "PYTHON_EXTENSION_SUFFIX")
+load("//tools:ament_index.bzl", "AmentIndex")
 load(
     ":distro.bzl",
     "AVAILABLE_TYPESUPPORT_LIST",
@@ -11,14 +13,9 @@ load(
     "calculate_rosidl_capitalization"
 )
 
-AmentResourceIndex = provider(
-    fields = ["prefix"],
-)
-
 RosInterfaces = provider(
     fields = ["interfaces"],
 )
-
 
 def _as_idl_tuple(file):
     """
@@ -155,39 +152,24 @@ Args:
 See `rosidl translate` CLI for further reference.
 """
 
-def _join_paths(*args):
-    # TODO(sloretz) does bazel have tools for paths? SO says pull in skylib.
-    # Remove trailing slashes
-    no_trailing_slashes = []
-    for arg in args:
-        if arg.endswith("/"):
-            no_trailing_slashes.append(arg[:-1])
-        else:
-            no_trailing_slashes.append(arg)
-
-    # remove leading slashes after the first argument
-    args = [no_trailing_slashes[0]]
-    for arg in no_trailing_slashes[1:]:
-        if arg.startswith("/"):
-            args.append(arg[1:])
-        else:
-            args.append(arg)
-
-    print("final args", args)
-    return "/".join(args)
-
 def _rosidl_generate_ament_index_entry_impl(ctx):
+    # declare that a "package" with the group name exists
+    package_marker_path = paths.join(
+        ctx.attr.prefix,
+        'share/ament_index/resource_index/packages/',
+        ctx.attr.group,
+    )
+    package_marker_out = ctx.actions.declare_file(package_marker_path)
+    ctx.actions.write(
+        output = package_marker_out,
+        content = ""
+    )
+
     # Declare interface files in a file under the rosidl_interfaces resource.
     # Directory names are important.
     # https://github.com/ament/ament_cmake/blob/master/ament_cmake_core/
     # doc/resource_index.md#file-system-index-layout
-    print("Declaring manifest", ctx.attr.prefix, ctx.attr.group)
-    print(_join_paths(
-            ctx.attr.prefix,
-            'share/ament_index/resource_index/rosidl_interfaces/',
-            ctx.attr.group,
-        ))
-    manifest_path = _join_paths(
+    manifest_path = paths.join(
         ctx.attr.prefix,
         'share/ament_index/resource_index/rosidl_interfaces/',
         ctx.attr.group,
@@ -221,16 +203,20 @@ def _rosidl_generate_ament_index_entry_impl(ctx):
     )
 
     # Symlink interface files into the share directory
-    runfiles_symlinks = {manifest_path: manifest_out}
+    runfiles_symlinks = {
+      package_marker_path: package_marker_out,
+      manifest_path: manifest_out
+    }
     for path, short_path in zip(interface_files, rosidl_interfaces_manifest):
-        symlink_path = _join_paths(
+        symlink_path = paths.join(
             ctx.attr.prefix, "share", ctx.attr.group, short_path)
         runfiles_symlinks[symlink_path] = path
 
-    ctx.runfiles(root_symlinks = runfiles_symlinks)
-
     return [
-        AmentResourceIndex(prefix = ctx.attr.prefix)
+        AmentIndex(prefix = ctx.attr.prefix),
+        DefaultInfo(
+            runfiles = ctx.runfiles(root_symlinks = runfiles_symlinks)
+        ),
     ]
 
 rosidl_generate_ament_index_entry = rule(
@@ -242,7 +228,7 @@ rosidl_generate_ament_index_entry = rule(
     ),
     implementation = _rosidl_generate_ament_index_entry_impl,
     output_to_genfiles = True,
-    provides = [AmentResourceIndex],
+    provides = [AmentIndex],
 )
 
 def _deduce_source_parts(interface_path):
@@ -1151,8 +1137,6 @@ def rosidl_interfaces_group(
         **kwargs
     )
 
-    # TODO(sloretz) create ament index entry here
-    # How to make the genrule below depend on it?
     rosidl_generate_ament_index_entry(
         name = name + "_ament_index",
         group = group or name,

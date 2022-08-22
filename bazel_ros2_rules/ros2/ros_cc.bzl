@@ -13,6 +13,7 @@ load(
     "//tools:common.bzl",
     "incorporate_rmw_implementation",
 )
+load("//tools:ament_index.bzl", "AmentIndex")
 load(
     ":distro.bzl",
     "RUNTIME_ENVIRONMENT"

@@ -8,6 +8,12 @@ The primary macro of interest is `do_dload_shim`, which aids language
 specific shim generation.
 """
 
+load(
+    "//tools:ament_index.bzl",
+    "AmentIndexes",
+    "ament_index_prefixes",
+)
+
 MAGIC_VARIABLES = {
     "${LOAD_PATH}": "LD_LIBRARY_PATH"  # for Linux
 }
@@ -46,6 +52,7 @@ def get_dload_shim_attributes():
     """
     return {
         "target": attr.label(
+            aspects = [ament_index_prefixes],
             mandatory = True,
             allow_files = True,
             executable = True,
@@ -87,6 +94,14 @@ def do_dload_shim(ctx, template, to_list):
         _parse_runtime_environment_action(ctx, action)
         for name, action in ctx.attr.env_changes.items()
     }
+
+    # Add ament resource index paths from targets we depend on
+    if AmentIndexes in ctx.attr.target:
+        if "AMENT_PREFIX_PATH" not in env_changes:
+            env_changes["AMENT_PREFIX_PATH"] = []
+        env_changes["AMENT_PREFIX_PATH"].extend(
+          ctx.attr.target[AmentIndexes].prefixes)
+
     envvars = env_changes.keys()
     actions = env_changes.values()
 

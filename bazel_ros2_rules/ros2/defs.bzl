@@ -50,6 +50,7 @@ COMMON_FILES_MANIFEST = [
     "resources/templates/prologue.bazel",
     "resources/templates/run.bash.in",
 
+    "tools/ament_index.bzl",
     "tools/common.bzl",
     "tools/dload.bzl",
     "tools/dload_cc.bzl",
