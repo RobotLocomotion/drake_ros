@@ -1140,7 +1140,7 @@ def rosidl_interfaces_group(
     rosidl_generate_ament_index_entry(
         name = name + "_ament_index",
         group = group or name,
-        interfaces = [name + "_defs"] + interfaces,
+        interfaces = [_make_public_label(name, "_defs")] + interfaces,
     )
 
     rosidl_cc_support(
