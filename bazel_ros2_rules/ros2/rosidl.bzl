@@ -167,7 +167,7 @@ def _rosidl_generate_ament_index_entry_impl(ctx):
 
     # Declare interface files in a file under the rosidl_interfaces resource.
     # Directory names are important.
-    # https://github.com/ament/ament_cmake/blob/master/ament_cmake_core/
+    # https://github.com/ament/ament_cmake/blob/1.5.0/ament_cmake_core/
     # doc/resource_index.md#file-system-index-layout
     manifest_path = paths.join(
         ctx.attr.prefix,
