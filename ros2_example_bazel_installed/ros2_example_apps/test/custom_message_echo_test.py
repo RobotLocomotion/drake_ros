@@ -16,7 +16,9 @@ def main():
         "ros2_example_bazel_installed/ros2_example_apps/simple_talker")
 
     timeout = 5.0
-    topic_echo = subprocess.Popen([ros2_bin, "topic", "echo", "--once", "/status"])
+    topic_echo = subprocess.Popen([
+        ros2_bin, "topic", "echo", "--once",
+        "/status", "ros2_example_apps_msgs/msg/Status"])
     talker = subprocess.Popen([talker_bin])
     topic_echo.wait(timeout=timeout)
     assert topic_echo.returncode == 0
