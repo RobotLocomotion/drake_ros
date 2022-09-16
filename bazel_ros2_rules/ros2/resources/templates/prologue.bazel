@@ -1,0 +1,10 @@
+# -*- python -*-
+# vi: set ft=python :
+
+package(default_visibility = ["//visibility:public"])
+
+load("//tools:common.bzl", "interfaces_filegroup")
+load("//tools:common.bzl", "share_filegroup")
+load(":ros_py.bzl", "ros_import_binary")
+
+exports_files(["system-rosdep-keys.txt"])

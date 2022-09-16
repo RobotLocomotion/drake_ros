@@ -1,0 +1,21 @@
+load(
+  ":_calculate_rosidl_capitalization.bzl",
+  "run_calculate_rosidl_capitalization_tests"
+)
+
+cc_library(
+  name = "dload_shim_cc",
+  hdrs  = ["tools/dload_shim.h"],
+  srcs = ["tools/dload_shim.cc"],
+  deps = ["@bazel_tools//tools/cpp/runfiles"],
+  visibility = ["//visibility:public"],
+)
+
+py_library(
+  name = "dload_shim_py",
+  deps = ["@bazel_tools//tools/python/runfiles"],
+  srcs = ["tools/dload_shim.py"],
+  visibility = ["//visibility:public"],
+)
+
+run_calculate_rosidl_capitalization_tests()

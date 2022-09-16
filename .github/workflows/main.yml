@@ -1,0 +1,55 @@
+name: drake-ros continuous integration
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+jobs:
+  test_against_galactic:
+    runs-on: ubuntu-latest
+    container:
+      image: robotlocomotion/drake:focal
+    env:
+      LD_LIBRARY_PATH: /opt/drake/lib
+    steps:
+      - uses: ros-tooling/setup-ros@v0.2
+        with:
+          required-ros-distributions: galactic
+      - name: Cope with Python 2 pollution
+        run: apt-get update && apt-get install -y python-is-python3
+      - name: Build and test all packages
+        uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          target-ros2-distro: galactic
+  test_against_humble:
+    runs-on: ubuntu-latest
+    container:
+      image: robotlocomotion/drake:focal
+    env:
+      LD_LIBRARY_PATH: /opt/drake/lib
+    steps:
+      - uses: ros-tooling/setup-ros@v0.2
+      - name: Install dependencies to build ROS packages
+        run: |
+          sudo mkdir -p /opt/ros/humble
+          wget -q https://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci-CHECKSUM
+          wget -q http://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci.tar.bz2
+          sha256sum -c ros2-humble-linux-focal-amd64-ci-CHECKSUM
+          sudo tar xf ros2-humble-linux-focal-amd64-ci.tar.bz2 --strip-components=1 -C /opt/ros/humble
+          sed -i 's|/tmp/ws/install_isolated|/opt/ros/humble|g' /opt/ros/humble/setup.sh
+          rm ros2-humble-linux-focal-amd64-ci.tar.bz2
+          # TODO(sloretz) Use bazel_ros2_rules/ros2/compute_system_rosdeps.py to de-duplicate rosdep invocation knowledge
+          rosdep update && rosdep install --from-paths /opt/ros/humble/share --ignore-src -y \
+            -t exec -t buildtool_export -t build_export \
+            --skip-keys "cyclonedds fastcdr fastrtps rmw_connextdds rmw_cyclonedds_cpp rmw_fastrtps_dynamic_cpp rti-connext-dds-5.3.1 urdfdom_headers iceoryx_binding_c rosidl_typesupport_fastrtps_c rosidl_typesupport_fastrtps_cpp"
+
+      - name: Cope with Python 2 pollution
+        run: apt-get update && apt-get install -y python-is-python3
+      - name: Build and test all packages
+        uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          target-ros2-distro: humble

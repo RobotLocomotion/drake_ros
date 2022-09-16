@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# Run a command in a ROS 2 setup environment
+#
+# $ ./run.bash command argument
+#
+# Not to be used as an interactive shell (yet)
+# TODO(hidmic): support source'ing
+
+# Source all workspaces
+for workspace in @WORKSPACES@; do
+    # TODO(hidmic): use setup.bash when available
+    COLCON_CURRENT_PREFIX=${workspace}
+    . ${workspace}/setup.sh
+    # Ensure CMake prefix path is set for non
+    # ROS packages in workspaces to be found
+    CMAKE_PREFIX_PATH="${workspace}:${CMAKE_PREFIX_PATH}"
+done
+unset COLCON_CURRENT_PREFIX
+export CMAKE_PREFIX_PATH
+
+exec $@

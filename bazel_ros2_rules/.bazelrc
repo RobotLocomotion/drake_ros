@@ -1,0 +1,9 @@
+# Perform optimized builds.
+build -c opt
+
+# Use C++17.
+build --cxxopt=-std=c++17
+build --host_cxxopt=-std=c++17
+
+# Use Python 3.
+build --python_path=/usr/bin/python3

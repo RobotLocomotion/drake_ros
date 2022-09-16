@@ -1,0 +1,6 @@
+# Use C++17.
+build --cxxopt=-std=c++17
+build --host_cxxopt=-std=c++17
+
+# Put ROS logs into /tmp
+build --action_env=ROS_HOME=/tmp/.ros

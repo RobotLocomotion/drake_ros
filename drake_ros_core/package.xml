@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>drake_ros_core</name>
+  <version>0.1.0</version>
+  <description>Drake systems to leverage core ROS 2 functionality.</description>
+  <maintainer email="ian.mcmahon@tri.global">Ian McMahon</maintainer>
+  <maintainer email="sloretz@openrobotics.org">Shane Loretz</maintainer>
+  <maintainer email="michel@ekumenlabs.com">Michel Hidalgo</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rclpy</depend>
+  <depend>rosidl_runtime_c</depend>
+  <depend>rosidl_typesupport_cpp</depend>
+
+  <test_depend>ament_cmake_clang_format</test_depend>
+  <test_depend>ament_cmake_cpplint</test_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_cmake_pycodestyle</test_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>test_msgs</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

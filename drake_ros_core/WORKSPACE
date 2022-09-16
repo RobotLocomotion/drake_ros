@@ -1,0 +1,50 @@
+workspace(name = "drake_ros_core")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+  name = "com_google_googletest",
+  urls = ["https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip"],
+  sha256 = "5cf189eb6847b4f8fc603a3ffff3b0771c08eec7dd4bd961bfd45477dd13eb73",
+  strip_prefix = "googletest-609281088cfefc76f9d0ce82e1ff6c30cc3591e5",
+)
+
+# Use the ROS 2 bazel rules
+local_repository(
+    name = "bazel_ros2_rules",
+    path = "../bazel_ros2_rules",
+)
+load("@bazel_ros2_rules//deps:defs.bzl", "add_bazel_ros2_rules_dependencies")
+add_bazel_ros2_rules_dependencies()
+
+load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_archive")
+
+# Use ROS 2
+ros2_archive(
+    name = "ros2",
+    include_packages = [
+      "rclpy",
+      "rclcpp",
+      "rosidl_runtime_c",
+      "rosidl_typesupport_cpp",
+      "test_msgs",
+    ],
+    url = "http://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci.tar.bz2",
+    sha256_url = "https://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci-CHECKSUM",
+    strip_prefix = "ros2-linux",
+)
+
+# Depend on Drake
+DRAKE_TAG = "v1.2.0"
+DRAKE_CHECKSUM = "c7f467239d12f2115daddf21e6609c0400a3d6ecf2d2616b036bf165505ae71e"
+http_archive(
+    name = "drake",
+    urls = [
+        "https://github.com/RobotLocomotion/drake/archive/refs/tags/{}.tar.gz".format(DRAKE_TAG),  # noqa
+    ],
+    sha256 = DRAKE_CHECKSUM,
+    strip_prefix = "drake-{}".format(DRAKE_TAG.lstrip("v")),
+)
+
+load("@drake//tools/workspace:default.bzl", "add_default_workspace")
+add_default_workspace()

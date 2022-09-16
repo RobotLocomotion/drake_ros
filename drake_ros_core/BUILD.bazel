@@ -1,0 +1,59 @@
+# Copyright 2022 Open Source Robotics Foundation, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@ros2//:ros_cc.bzl", "ros_cc_test")
+
+# TODO(sloretz) more granular targets for static linking
+cc_library(
+  name = "drake_ros_core",
+  hdrs = glob(["include/**/*.h"]),
+  strip_include_prefix = "include",
+  srcs = glob(["src/*.cc", "src/*.h"]),
+  deps = [
+    "@drake//systems/framework:leaf_system",
+    "@ros2//:rclcpp_cc",
+    "@ros2//:rosidl_runtime_c_cc",
+    "@ros2//:rosidl_typesupport_cpp_cc",
+  ],
+  visibility = ["//visibility:public"]
+)
+
+ros_cc_test(
+  name = "test_pub_sub",
+  deps = [
+    "@com_google_googletest//:gtest_main",
+    "@drake//systems/analysis:simulator",
+    "@drake//systems/framework:diagram_builder",
+    "@ros2//:rclcpp_cc",
+    "@ros2//:test_msgs_cc",
+    "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ":drake_ros_core",
+  ],
+  rmw_implementation = "rmw_cyclonedds_cpp",
+  size = "small",
+  srcs = ["test/test_pub_sub.cc"],
+)
+
+ros_cc_test(
+  name = "test_drake_ros",
+  deps = [
+    "@com_google_googletest//:gtest_main",
+    "@ros2//:rclcpp_cc",
+    "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ":drake_ros_core",
+  ],
+  rmw_implementation = "rmw_cyclonedds_cpp",
+  size = "small",
+  srcs = ["test/test_drake_ros.cc"],
+)

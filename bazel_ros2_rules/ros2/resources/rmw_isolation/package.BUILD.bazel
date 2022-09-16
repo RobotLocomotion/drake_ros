@@ -1,0 +1,125 @@
+# -*- python -*-
+# vi: set ft=python :
+
+load("//:ros_cc.bzl", "ros_cc_binary")
+load("//:ros_py.bzl", "ros_py_binary")
+
+py_library(
+    name = "module_py",
+    srcs = ["__init__.py"],
+)
+
+py_library(
+    name = "rmw_isolation_py",
+    srcs = ["rmw_isolation.py"],
+    deps = [
+        ":module_py",
+        "//:rclpy_py",
+    ],
+    # TODO(eric.cousineau, sloretz): This import path may shadow something in
+    # the future.
+    imports = ["."],
+    visibility = ["//visibility:public"]
+)
+
+ros_py_binary(
+    name = "generate_isolated_rmw_env",
+    srcs = ["generate_isolated_rmw_env.py"],
+    main = "generate_isolated_rmw_env.py",
+    deps = [":rmw_isolation_py"],
+    legacy_create_init = False,
+)
+
+cc_library(
+    name = "rmw_isolation_cc",
+    srcs = ["rmw_isolation.cc"],
+    hdrs = ["rmw_isolation.h"],
+    include_prefix = "rmw_isolation",
+    data = [":generate_isolated_rmw_env"],
+    local_defines = [
+        "RMW_ISOLATION_ROOTPATH={}/{}".format(
+            repository_name().strip("@") or ".",
+            package_name())
+    ],
+    deps = [
+        "@bazel_tools//tools/cpp/runfiles",
+        "//:rclcpp_cc",
+    ],
+    visibility = ["//visibility:public"]
+)
+
+ros_py_binary(
+    name = "isolated_talker_py",
+    srcs = ["test/isolated_talker.py"],
+    main = "test/isolated_talker.py",
+    deps = [
+        "//:rclpy_py",
+        "//:std_msgs_py",
+        ":rmw_isolation_py",
+    ],
+    rmw_implementation = 'rmw_cyclonedds_cpp',
+    legacy_create_init = False,
+)
+
+ros_py_binary(
+    name = "isolated_listener_py",
+    srcs = ["test/isolated_listener.py"],
+    main = "test/isolated_listener.py",
+    deps = [
+        "//:rclpy_py",
+        "//:std_msgs_py",
+        ":rmw_isolation_py",
+    ],
+    rmw_implementation = 'rmw_cyclonedds_cpp',
+    legacy_create_init = False,
+)
+
+sh_test(
+    name = "rmw_isolation_py_test",
+    srcs = ["test/rmw_isolation_test.sh"],
+    args = [
+        "$(location :isolated_talker_py)",
+        "$(location :isolated_listener_py)",
+    ],
+    data = [":isolated_talker_py", ":isolated_listener_py"],
+    size = "small",
+    # Set flaky because collision rates are non-zero,
+    # See ROS2 Skylark tooling README.md for further reference.
+    flaky = True,
+)
+
+ros_cc_binary(
+    name = "isolated_talker_cc",
+    srcs = ["test/isolated_talker.cc"],
+    deps = [
+        "//:rclcpp_cc",
+        "//:std_msgs_cc",
+        ":rmw_isolation_cc",
+    ],
+    rmw_implementation = 'rmw_cyclonedds_cpp',
+)
+
+ros_cc_binary(
+    name = "isolated_listener_cc",
+    srcs = ["test/isolated_listener.cc"],
+    deps = [
+        "//:rclcpp_cc",
+        "//:std_msgs_cc",
+        ":rmw_isolation_cc",
+    ],
+    rmw_implementation = 'rmw_cyclonedds_cpp',
+)
+
+sh_test(
+    name = "rmw_isolation_cc_test",
+    srcs = ["test/rmw_isolation_test.sh"],
+    args = [
+        "$(location :isolated_talker_cc)",
+        "$(location :isolated_listener_cc)",
+    ],
+    data = [":isolated_talker_cc", ":isolated_listener_cc"],
+    size = "small",
+    # Set flaky because collision rates are non-zero,
+    # See ROS2 Skylark tooling README.md for further reference.
+    flaky = True,
+)

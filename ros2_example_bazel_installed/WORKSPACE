@@ -1,0 +1,71 @@
+workspace(name = "ros2_example_bazel_installed")
+
+load("//tools:environ.bzl", "environment_repository")
+
+environment_repository(
+    name = "ros2_example_bazel_installed_environ",
+    envvars = ["ROS2_DISTRO_PREFIX"],
+)
+
+load("@ros2_example_bazel_installed_environ//:environ.bzl", "ROS2_DISTRO_PREFIX")
+
+# Skylib workspace boilerplate
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "f7be3474d42aae265405a592bb7da8e171919d74c16f082a5457840f06054728",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
+    ],
+)
+
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
+
+local_repository(
+    name = "bazel_ros2_rules",
+    path = "../bazel_ros2_rules",
+)
+
+load("@bazel_ros2_rules//deps:defs.bzl", "add_bazel_ros2_rules_dependencies")
+
+add_bazel_ros2_rules_dependencies()
+
+load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_archive")
+load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_local_repository")
+
+ROS2_PACKAGES = [
+    "action_msgs",
+    "builtin_interfaces",
+    "rosidl_default_generators",
+    "rclcpp_action",
+    "rclcpp",
+    "rclpy",
+    "ros2cli",
+    "ros2cli_common_extensions",
+    # RMW implementations
+    # Uncomment one and only one to change implementations
+    "rmw_cyclonedds_cpp",
+    # "rmw_fastrtps_cpp",
+]
+
+ros2_archive(
+    name = "ros2" if not ROS2_DISTRO_PREFIX else "ros2_ignored",
+    include_packages = ROS2_PACKAGES,
+    sha256_url = "https://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci-CHECKSUM",
+    strip_prefix = "ros2-linux",
+    # Note: If you want an exact / unchanging version, you will need to mirror the archive
+    # according to versions you want.
+    # TODO(hidmic,cottsay): Make release-pinned snapshots of this repository once `drake-ros`
+    # itself has versions.
+    url = "http://repo.ros2.org/ci_archives/drake-ros-underlay/ros2-humble-linux-focal-amd64-ci.tar.bz2",
+)
+
+ros2_local_repository(
+    name = "ros2" if ROS2_DISTRO_PREFIX else "ros2_ignored",
+    include_packages = ROS2_PACKAGES,
+    workspaces = [ROS2_DISTRO_PREFIX],
+)

@@ -1,0 +1,40 @@
+# @NAME@ is an ament CMake project to help collect @PACKAGE@'s exported
+# configuration. It does so by means of an empty binary library that
+# declares a direct dependency on @PACKAGE@. All relevant paths and
+# flags can then be retrived from CMake's code model (e.g. using
+# CMake's server mode on this project).
+cmake_minimum_required(VERSION 3.5)
+project(@NAME@ C CXX)
+
+find_package(ament_cmake REQUIRED)
+find_package(@PACKAGE@ REQUIRED)
+
+file(WRITE empty.cc "")
+add_library(${PROJECT_NAME} SHARED empty.cc)
+if("@PACKAGE@" STREQUAL "rviz_ogre_vendor")
+  # TODO(hidmic): generalize special case handling
+  set(OGRE_TARGETS)
+  if(TARGET rviz_ogre_vendor::OgreMain)
+    list(APPEND OGRE_TARGETS rviz_ogre_vendor::OgreMain)
+  endif()
+  if(TARGET rviz_ogre_vendor::OgreOverlay)
+    list(APPEND OGRE_TARGETS rviz_ogre_vendor::OgreOverlay)
+  endif()
+  if(TARGET rviz_ogre_vendor::RenderSystem_GL)
+    list(APPEND OGRE_TARGETS rviz_ogre_vendor::RenderSystem_GL)
+  endif()
+  if(TARGET rviz_ogre_vendor::OgreGLSupport)
+    list(APPEND OGRE_TARGETS rviz_ogre_vendor::OgreGLSupport)
+  endif()
+  target_link_libraries(${PROJECT_NAME}
+    ${OGRE_TARGETS} ${OGRE_LIBRARIES} ${OGRE_PLUGINS}
+  )
+  file(GLOB ogre_plugin_libraries "${OGRE_PLUGIN_DIR}/*.so*")
+  target_link_libraries(${PROJECT_NAME} ${ogre_plugin_libraries})
+else()
+  ament_target_dependencies(${PROJECT_NAME} @PACKAGE@)
+  # TODO(hidmic): figure out why this is sometimes necessary
+  if(TARGET @PACKAGE@)
+    target_link_libraries(${PROJECT_NAME} @PACKAGE@)
+  endif()
+endif()

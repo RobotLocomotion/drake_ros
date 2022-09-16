@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>drake_ros_viz</name>
+  <version>0.1.0</version>
+  <description>Drake systems for visualization in ROS 2.</description>
+  <maintainer email="ian.mcmahon@tri.global">Ian McMahon</maintainer>
+  <maintainer email="sloretz@openrobotics.org">Shane Loretz</maintainer>
+  <maintainer email="michel@ekumenlabs.com">Michel Hidalgo</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>drake_ros_core</depend>
+  <depend>drake_ros_tf2</depend>
+  <depend>geometry_msgs</depend>
+  <depend>rclcpp</depend>
+  <depend>visualization_msgs</depend>
+
+  <test_depend>ament_cmake_clang_format</test_depend>
+  <test_depend>ament_cmake_cpplint</test_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>test_msgs</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

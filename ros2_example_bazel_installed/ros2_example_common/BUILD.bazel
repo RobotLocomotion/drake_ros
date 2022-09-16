@@ -1,0 +1,18 @@
+# -*- mode: python -*-
+# vi: set ft=python :
+
+load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
+
+rosidl_interfaces_group(
+    name = "ros2_example_common_msgs",
+    interfaces = [
+        "msg/Status.msg",
+        "srv/Query.srv",
+        "action/Do.action",
+    ],
+    deps = [
+        "@ros2//:action_msgs",
+        "@ros2//:builtin_interfaces",
+    ],
+    visibility = ["//visibility:public"],
+)

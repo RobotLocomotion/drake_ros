@@ -1,0 +1,187 @@
+# -*- mode: python -*-
+# vi: set ft=python :
+
+load("@ros2//:ros_cc.bzl", "ros_cc_binary")
+load("@ros2//:ros_cc.bzl", "ros_cc_test")
+load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
+load("@ros2//:rosidl.bzl", "rosidl_interfaces_group")
+load("//tools:cmd_test.bzl", "cmd_test")
+
+rosidl_interfaces_group(
+    name = "ros2_example_apps_msgs",
+    interfaces = [
+        "msg/Status.msg",
+    ],
+    deps = [
+        "//ros2_example_common:ros2_example_common_msgs",
+        "@ros2//:builtin_interfaces",
+    ],
+)
+
+ros_cc_binary(
+    name = "oracle_cc",
+    srcs = ["oracle.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    tags = ["requires-network"],
+    deps = [
+        ":ros2_example_apps_msgs_cc",
+        "//ros2_example_common:ros2_example_common_msgs_cc",
+        "@ros2//:rclcpp_action_cc",
+        "@ros2//:rclcpp_cc",
+    ],
+)
+
+ros_cc_binary(
+    name = "inquirer_cc",
+    srcs = ["inquirer.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    tags = ["requires-network"],
+    deps = [
+        ":ros2_example_apps_msgs_cc",
+        "//ros2_example_common:ros2_example_common_msgs_cc",
+        "@ros2//:rclcpp_action_cc",
+        "@ros2//:rclcpp_cc",
+    ],
+)
+
+ros_py_binary(
+    name = "oracle_py",
+    srcs = ["oracle.py"],
+    main = "oracle.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    tags = ["requires-network"],
+    deps = [
+        ":ros2_example_apps_msgs_py",
+        "//ros2_example_common:ros2_example_common_msgs_py",
+        "@ros2//:rclpy_py",
+    ],
+)
+
+ros_py_binary(
+    name = "inquirer_py",
+    srcs = ["inquirer.py"],
+    main = "inquirer.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    tags = ["requires-network"],
+    deps = [
+        ":ros2_example_apps_msgs_py",
+        "//ros2_example_common:ros2_example_common_msgs_py",
+        "@ros2//:rclpy_py",
+    ],
+)
+
+cc_library(
+    name = "talker_cc",
+    hdrs = ["talker.h"],
+    includes = ["."],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "listener_cc",
+    hdrs = ["listener.h"],
+    includes = ["."],
+    visibility = ["//visibility:public"],
+)
+
+ros_cc_test(
+    name = "talker_listener_cc_test",
+    size = "small",
+    srcs = ["test/talker_listener.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":listener_cc",
+        ":talker_cc",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:std_msgs_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
+)
+
+cmd_test(
+    name = "gdb_oracle_cc_test",
+    size = "small",
+    cmd = [
+        "gdb",
+        "-x",
+        "$(location :test/oracle_cc.gdb)",
+        "--batch",
+        "--args",
+        "$(location :oracle_cc)",
+        "--ros-args",
+        "--disable-external-lib-logs",
+    ],
+    data = [
+        "test/oracle_cc.gdb",
+        ":oracle_cc",
+    ],
+)
+
+cmd_test(
+    name = "lldb_oracle_cc_test",
+    size = "small",
+    cmd = [
+        "lldb",
+        "-s",
+        "$(location :test/oracle_cc.lldb)",
+        "--batch",
+        "--",
+        "$(location :oracle_cc)",
+        "--ros-args",
+        "--disable-external-lib-logs",
+    ],
+    data = [
+        "test/oracle_cc.lldb",
+        ":oracle_cc",
+    ],
+)
+
+ros_py_binary(
+    name = "simple_talker",
+    srcs = ["simple_talker.py"],
+    deps = [
+        ":ros2_example_apps_msgs_py",
+        "@ros2//:rclpy_py",
+    ],
+)
+
+# This shows how to ensure a Bazel-provided `ros2` CLI can print out custom
+# messages (#118). See note below.
+ros_py_test(
+    name = "custom_message_echo_test",
+    srcs = ["test/custom_message_echo_test.py"],
+    data = [
+        ":simple_talker",
+        "@ros2",
+    ],
+    main = "test/custom_message_echo_test.py",
+    deps = [
+        # This is the main key - you must provide the generated messages as a
+        # Python dependency. Otherwise, attempting to use `ros2 topic ...` will
+        # indicate the message type is invalid.
+        ":ros2_example_apps_msgs_py",
+        "@bazel_tools//tools/python/runfiles",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+    ],
+)
+
+# This shows how to ensure a Bazel-provided `ros2` CLI can discover custom
+# messages (#118). See note below.
+ros_py_test(
+    name = "custom_message_list_test",
+    srcs = ["test/custom_message_list_test.py"],
+    data = [
+        # This is the main key. You must provide the generated definitions as
+        # a dependency. It can come through data as is done here, or via any
+        # dependency, such as the C++ (*_cc) or Python (*_py) targets.
+        # Otherwise, `ros2 interface ...` will indicate the message type is
+        # invalid.
+        ":ros2_example_apps_msgs_defs",
+        "@ros2",
+    ],
+    main = "test/custom_message_list_test.py",
+    deps = [
+        "@bazel_tools//tools/python/runfiles",
+        "@ros2//resources/rmw_isolation:rmw_isolation_py",
+    ],
+)

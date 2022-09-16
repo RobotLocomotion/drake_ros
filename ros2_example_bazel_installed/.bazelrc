@@ -1,0 +1,15 @@
+# Perform optimized builds.
+build -c opt
+
+# Use C++17.
+build --cxxopt=-std=c++17
+build --host_cxxopt=-std=c++17
+
+# Use Python 3.
+build --python_path=/usr/bin/python3
+
+# Signal that ROS logging to file system needs to be disabled in tests
+test --test_env=ROS_HOME=/does_not_exist/instead_please_reconfigure_in_test
+
+# Disable ROS communication with other machines
+test --test_env=ROS_LOCALHOST_ONLY=1

@@ -1,0 +1,39 @@
+name: Bazel ROS Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  bazel_build_and_test:
+    runs-on: ubuntu-latest
+    container:
+      image: ros:rolling-ros-base-focal
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: "/home/runner/.cache/bazel"
+          key: bazel
+      - name: Install prerequisites
+        run: yes | ./setup/install_prereqs.sh
+        working-directory: ros2_example_bazel_installed
+      # Place this before main build.
+      # TODO(eric.cousineau): Remove this pending resolution of #107.
+      - name: Check direct runs via runfiles
+        run: ./setup/runfiles_direct_test.sh
+        working-directory: ros2_example_bazel_installed
+      - name: Build Bazel workspace
+        run: bazel build //...
+        working-directory: ros2_example_bazel_installed
+      - name: Test Bazel workspace
+        run: bazel test //... @ros2//...
+        working-directory: ros2_example_bazel_installed
+      - name: Build drake_ros_core
+        run: bazel build //...
+        working-directory: drake_ros_core
+      - name: Test drake_ros_core
+        run: bazel test //...
+        working-directory: drake_ros_core

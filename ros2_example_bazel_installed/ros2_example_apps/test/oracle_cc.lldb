@@ -1,0 +1,5 @@
+settings set target.process.stop-on-exec false
+process launch --stop-at-entry
+breakpoint set --method 'Oracle::publish_status'
+continue
+thread backtrace
