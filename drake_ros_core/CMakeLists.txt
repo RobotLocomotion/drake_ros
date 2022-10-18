@@ -35,13 +35,13 @@ add_library(drake_ros_core
   src/subscription.cc
 )
 
-ament_target_dependencies(drake_ros_core
-  Eigen3
-  drake
-  geometry_msgs
-  rclcpp
-  rosidl_runtime_c
-  rosidl_typesupport_cpp
+target_link_libraries(drake_ros_core PUBLIC
+  Eigen3::Eigen
+  drake::drake
+  ${geometry_msgs_TARGETS}
+  rclcpp::rclcpp
+  rosidl_runtime_c::rosidl_runtime_c
+  rosidl_typesupport_cpp::rosidl_typesupport_cpp
 )
 
 target_include_directories(drake_ros_core
@@ -116,8 +116,6 @@ if(BUILD_TESTING)
     # We do not expose `rmw_isoliation` via CMake.
     _TEST_DISABLE_RMW_ISOLATION
   )
-  # N.B. We cannot use `ament_target_dependencies` because we cannot access this
-  # package's exported ament target.
   target_link_libraries(test_pub_sub
     drake::drake
     drake_ros_core
