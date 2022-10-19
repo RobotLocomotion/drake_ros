@@ -119,16 +119,16 @@ geometry_msgs::msg::Twist SpatialVelocityToRosTwist(
 
 // Spatial Acceleration.
 
-drake::Vector6d RosAccelerationToVector6(
+drake::Vector6d RosAccelToVector6(
     const geometry_msgs::msg::Accel& accel);
 
-geometry_msgs::msg::Accel Vector6ToRosAcceleration(
+geometry_msgs::msg::Accel Vector6ToRosAccel(
     const drake::Vector6d& vector);
 
-drake::multibody::SpatialAcceleration<double> RosAccelerationToSpatialAcceleration(
+drake::multibody::SpatialAcceleration<double> RosAccelToSpatialAcceleration(
     const geometry_msgs::msg::Accel& accel);
 
-geometry_msgs::msg::Accel SpatialAccelerationToRosAcceleration(
+geometry_msgs::msg::Accel SpatialAccelerationToRosAccel(
     const drake::multibody::SpatialAcceleration<double>& accel);
 
 // Spatial Force.

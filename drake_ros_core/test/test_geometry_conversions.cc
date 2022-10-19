@@ -292,7 +292,7 @@ drake::multibody::SpatialAcceleration<double> MakeDummySpatialAcceleration() {
       MakeDummyVector3ForTranslation());
 }
 
-geometry_msgs::msg::Accel MakeDummyRosAcceleration() {
+geometry_msgs::msg::Accel MakeDummyRosAccel() {
   // Represents same quantity as MakeDummySpatialAcceleration.
   geometry_msgs::msg::Accel value;
   value.angular = MakeDummyRosVector3ForRotation();
@@ -301,17 +301,17 @@ geometry_msgs::msg::Accel MakeDummyRosAcceleration() {
 }
 
 TEST(GeometryConversions, Acceleration) {
-  const geometry_msgs::msg::Accel message = MakeDummyRosAcceleration();
+  const geometry_msgs::msg::Accel message = MakeDummyRosAccel();
   const drake::multibody::SpatialAcceleration<double> value_expected =
       MakeDummySpatialAcceleration();
   const drake::multibody::SpatialAcceleration<double> value =
-      RosAccelerationToSpatialAcceleration(message);
+      RosAccelToSpatialAcceleration(message);
   EXPECT_TRUE(IsEqual(value, value_expected));
-  EXPECT_EQ(message, SpatialAccelerationToRosAcceleration(value));
+  EXPECT_EQ(message, SpatialAccelerationToRosAccel(value));
 
   // Test Vector6 flavoring.
-  EXPECT_EQ(value.get_coeffs(), RosAccelerationToVector6(message));
-  EXPECT_EQ(message, Vector6ToRosAcceleration(value.get_coeffs()));
+  EXPECT_EQ(value.get_coeffs(), RosAccelToVector6(message));
+  EXPECT_EQ(message, Vector6ToRosAccel(value.get_coeffs()));
 }
 
 // Spatial Force.

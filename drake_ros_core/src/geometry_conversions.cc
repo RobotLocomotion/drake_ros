@@ -143,7 +143,7 @@ geometry_msgs::msg::Twist SpatialVelocityToRosTwist(
   return result;
 }
 
-drake::Vector6d RosAccelerationToVector6(
+drake::Vector6d RosAccelToVector6(
     const geometry_msgs::msg::Accel& accel) {
   drake::Vector6d result;
   result <<
@@ -152,7 +152,7 @@ drake::Vector6d RosAccelerationToVector6(
   return result;
 }
 
-geometry_msgs::msg::Accel Vector6ToRosAcceleration(
+geometry_msgs::msg::Accel Vector6ToRosAccel(
     const drake::Vector6d& vector) {
   geometry_msgs::msg::Accel result;
   result.angular = Vector3ToRosVector3(vector.head<3>());
@@ -160,14 +160,14 @@ geometry_msgs::msg::Accel Vector6ToRosAcceleration(
   return result;
 }
 
-drake::multibody::SpatialAcceleration<double> RosAccelerationToSpatialAcceleration(
+drake::multibody::SpatialAcceleration<double> RosAccelToSpatialAcceleration(
     const geometry_msgs::msg::Accel& accel) {
   return drake::multibody::SpatialAcceleration<double>(
       RosVector3ToVector3(accel.angular),
       RosVector3ToVector3(accel.linear));
 }
 
-geometry_msgs::msg::Accel SpatialAccelerationToRosAcceleration(
+geometry_msgs::msg::Accel SpatialAccelerationToRosAccel(
     const drake::multibody::SpatialAcceleration<double>& accel) {
   geometry_msgs::msg::Accel result;
   result.angular = Vector3ToRosVector3(accel.rotational());
