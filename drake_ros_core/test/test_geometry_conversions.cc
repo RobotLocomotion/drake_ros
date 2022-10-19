@@ -25,8 +25,7 @@ namespace {
 // Simplified version of drake::CompareMatrices (which is not presently
 // installed).
 [[nodiscard]] ::testing::AssertionResult CompareMatrices(
-    const Eigen::MatrixXd& lhs,
-    const Eigen::MatrixXd& rhs,
+    const Eigen::MatrixXd& lhs, const Eigen::MatrixXd& rhs,
     double tolerance = 0.0) {
   const auto diff = lhs.array() - rhs.array();
   const auto exceeds = diff.abs() > tolerance;
@@ -40,14 +39,12 @@ namespace {
       }
     };
     return ::testing::AssertionFailure() << fmt::format(
-        "Matrices don't match to tolerance of {}.\n"
-        "lhs: {}\n\n"
-        "rhs: {}\n\n"
-        "lhs - rhs: {}\n\n",
-        tolerance,
-        maybe_transpose(lhs),
-        maybe_transpose(rhs),
-        maybe_transpose(lhs - rhs));
+               "Matrices don't match to tolerance of {}.\n"
+               "lhs: {}\n\n"
+               "rhs: {}\n\n"
+               "lhs - rhs: {}\n\n",
+               tolerance, maybe_transpose(lhs), maybe_transpose(rhs),
+               maybe_transpose(lhs - rhs));
   }
   return ::testing::AssertionSuccess();
 }
@@ -112,8 +109,7 @@ geometry_msgs::msg::Quaternion MakeDummyRosQuaternion() {
 }
 
 [[nodiscard]] ::testing::AssertionResult IsEqual(
-    const Eigen::Quaterniond& lhs,
-    const Eigen::Quaterniond& rhs) {
+    const Eigen::Quaterniond& lhs, const Eigen::Quaterniond& rhs) {
   // N.B. Quaternion::coeffs() returns (x, y, z, w).
   return CompareMatrices(lhs.coeffs(), rhs.coeffs());
 }
@@ -129,10 +125,7 @@ TEST(GeometryConversions, Quaternion) {
 drake::math::RotationMatrixd MakeDummyRotationMatrix() {
   // This corresponds to RollPitchYaw(np.deg2rad([90, 0, 0]))
   Eigen::Matrix3d R;
-  R <<
-      1.0, 0.0, 0.0,
-      0.0, 0.0, -1.0,
-      0.0, 1.0, 0.0;
+  R << 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0;
   return drake::math::RotationMatrixd(R);
 }
 
@@ -144,8 +137,7 @@ drake::math::RotationMatrixd MakeDummyRotationMatrix() {
 
 TEST(GeometryConversions, RotationMatrix) {
   const geometry_msgs::msg::Quaternion message = MakeDummyRosQuaternion();
-  const drake::math::RotationMatrixd value_expected =
-      MakeDummyRotationMatrix();
+  const drake::math::RotationMatrixd value_expected = MakeDummyRotationMatrix();
   const drake::math::RotationMatrixd value =
       RosQuaternionToRotationMatrix(message);
   EXPECT_TRUE(IsEqual(value, value_expected));
@@ -155,9 +147,8 @@ TEST(GeometryConversions, RotationMatrix) {
 // Pose.
 
 drake::math::RigidTransformd MakeDummyRigidTransform() {
-  return drake::math::RigidTransformd(
-      MakeDummyQuaternion(),
-      MakeDummyVector3());
+  return drake::math::RigidTransformd(MakeDummyQuaternion(),
+                                      MakeDummyVector3());
 }
 
 geometry_msgs::msg::Pose MakeDummyRosPose() {
@@ -174,19 +165,16 @@ geometry_msgs::msg::Pose MakeDummyRosPose() {
   return CompareMatrices(lhs.GetAsMatrix4(), rhs.GetAsMatrix4());
 }
 
-[[nodiscard]] ::testing::AssertionResult IsEqual(
-    const Eigen::Isometry3d& lhs, const Eigen::Isometry3d& rhs) {
-  return IsEqual(
-      drake::math::RigidTransformd(lhs),
-      drake::math::RigidTransformd(rhs));
+[[nodiscard]] ::testing::AssertionResult IsEqual(const Eigen::Isometry3d& lhs,
+                                                 const Eigen::Isometry3d& rhs) {
+  return IsEqual(drake::math::RigidTransformd(lhs),
+                 drake::math::RigidTransformd(rhs));
 }
 
 TEST(GeometryConversions, Pose) {
   const geometry_msgs::msg::Pose message = MakeDummyRosPose();
-  const drake::math::RigidTransformd value_expected =
-      MakeDummyRigidTransform();
-  const drake::math::RigidTransformd value =
-      RosPoseToRigidTransform(message);
+  const drake::math::RigidTransformd value_expected = MakeDummyRigidTransform();
+  const drake::math::RigidTransformd value = RosPoseToRigidTransform(message);
   EXPECT_TRUE(IsEqual(value, value_expected));
   EXPECT_EQ(message, RigidTransformToRosPose(value));
 
@@ -205,15 +193,15 @@ geometry_msgs::msg::Transform MakeDummyRosTransform() {
 
 TEST(GeometryConversions, Transform) {
   const geometry_msgs::msg::Transform message = MakeDummyRosTransform();
-  const drake::math::RigidTransformd value_expected =
-      MakeDummyRigidTransform();
+  const drake::math::RigidTransformd value_expected = MakeDummyRigidTransform();
   const drake::math::RigidTransformd value =
       RosTransformToRigidTransform(message);
   EXPECT_TRUE(IsEqual(value, value_expected));
   EXPECT_EQ(message, RigidTransformToRosTransform(value));
 
   // Test Isometry3 flavoring.
-  EXPECT_TRUE(IsEqual(value.GetAsIsometry3(), RosTransformToIsometry3(message)));
+  EXPECT_TRUE(
+      IsEqual(value.GetAsIsometry3(), RosTransformToIsometry3(message)));
   EXPECT_EQ(message, Isometry3ToRosTransform(value.GetAsIsometry3()));
 }
 
@@ -221,13 +209,9 @@ TEST(GeometryConversions, Transform) {
 
 // We should distinguish between translational and rotational values.
 
-Eigen::Vector3d MakeDummyVector3ForRotation() {
-  return {0.1, 0.2, 0.3};
-}
+Eigen::Vector3d MakeDummyVector3ForRotation() { return {0.1, 0.2, 0.3}; }
 
-Eigen::Vector3d MakeDummyVector3ForTranslation() {
-  return {1.0, 2.0, 3.0};
-}
+Eigen::Vector3d MakeDummyVector3ForTranslation() { return {1.0, 2.0, 3.0}; }
 
 geometry_msgs::msg::Vector3 MakeDummyRosVector3ForRotation() {
   // Represents same quantity as MakeDummyVector3ForRotation.
@@ -258,8 +242,7 @@ template <template <typename> class SpatialType>
 
 drake::multibody::SpatialVelocity<double> MakeDummySpatialVelocity() {
   return drake::multibody::SpatialVelocity<double>(
-      MakeDummyVector3ForRotation(),
-      MakeDummyVector3ForTranslation());
+      MakeDummyVector3ForRotation(), MakeDummyVector3ForTranslation());
 }
 
 geometry_msgs::msg::Twist MakeDummyRosTwist() {
@@ -288,8 +271,7 @@ TEST(GeometryConversions, Twist) {
 
 drake::multibody::SpatialAcceleration<double> MakeDummySpatialAcceleration() {
   return drake::multibody::SpatialAcceleration<double>(
-      MakeDummyVector3ForRotation(),
-      MakeDummyVector3ForTranslation());
+      MakeDummyVector3ForRotation(), MakeDummyVector3ForTranslation());
 }
 
 geometry_msgs::msg::Accel MakeDummyRosAccel() {
@@ -318,8 +300,7 @@ TEST(GeometryConversions, Acceleration) {
 
 drake::multibody::SpatialForce<double> MakeDummySpatialForce() {
   return drake::multibody::SpatialForce<double>(
-      MakeDummyVector3ForRotation(),
-      MakeDummyVector3ForTranslation());
+      MakeDummyVector3ForRotation(), MakeDummyVector3ForTranslation());
 }
 
 geometry_msgs::msg::Wrench MakeDummyWrench() {

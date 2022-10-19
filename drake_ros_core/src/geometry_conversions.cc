@@ -99,8 +99,7 @@ Eigen::Isometry3d RosPoseToIsometry3(const geometry_msgs::msg::Pose& pose) {
   return RosPoseToRigidTransform(pose).GetAsIsometry3();
 }
 
-geometry_msgs::msg::Pose Isometry3ToRosPose(
-    const Eigen::Isometry3d& isometry) {
+geometry_msgs::msg::Pose Isometry3ToRosPose(const Eigen::Isometry3d& isometry) {
   return RigidTransformToRosPose(drake::math::RigidTransformd(isometry));
 }
 
@@ -116,8 +115,7 @@ geometry_msgs::msg::Transform Isometry3ToRosTransform(
 
 drake::Vector6d RosTwistToVector6(const geometry_msgs::msg::Twist& twist) {
   drake::Vector6d result;
-  result <<
-      RosVector3ToVector3(twist.angular),
+  result << RosVector3ToVector3(twist.angular),
       RosVector3ToVector3(twist.linear);
   return result;
 }
@@ -143,17 +141,14 @@ geometry_msgs::msg::Twist SpatialVelocityToRosTwist(
   return result;
 }
 
-drake::Vector6d RosAccelToVector6(
-    const geometry_msgs::msg::Accel& accel) {
+drake::Vector6d RosAccelToVector6(const geometry_msgs::msg::Accel& accel) {
   drake::Vector6d result;
-  result <<
-      RosVector3ToVector3(accel.angular),
+  result << RosVector3ToVector3(accel.angular),
       RosVector3ToVector3(accel.linear);
   return result;
 }
 
-geometry_msgs::msg::Accel Vector6ToRosAccel(
-    const drake::Vector6d& vector) {
+geometry_msgs::msg::Accel Vector6ToRosAccel(const drake::Vector6d& vector) {
   geometry_msgs::msg::Accel result;
   result.angular = Vector3ToRosVector3(vector.head<3>());
   result.linear = Vector3ToRosVector3(vector.tail<3>());
@@ -163,8 +158,7 @@ geometry_msgs::msg::Accel Vector6ToRosAccel(
 drake::multibody::SpatialAcceleration<double> RosAccelToSpatialAcceleration(
     const geometry_msgs::msg::Accel& accel) {
   return drake::multibody::SpatialAcceleration<double>(
-      RosVector3ToVector3(accel.angular),
-      RosVector3ToVector3(accel.linear));
+      RosVector3ToVector3(accel.angular), RosVector3ToVector3(accel.linear));
 }
 
 geometry_msgs::msg::Accel SpatialAccelerationToRosAccel(
@@ -177,8 +171,7 @@ geometry_msgs::msg::Accel SpatialAccelerationToRosAccel(
 
 drake::Vector6d RosWrenchToVector6(const geometry_msgs::msg::Wrench& wrench) {
   drake::Vector6d result;
-  result <<
-      RosVector3ToVector3(wrench.torque),
+  result << RosVector3ToVector3(wrench.torque),
       RosVector3ToVector3(wrench.force);
   return result;
 }
@@ -193,8 +186,7 @@ geometry_msgs::msg::Wrench Vector6ToRosWrench(const drake::Vector6d& vector) {
 drake::multibody::SpatialForce<double> RosWrenchToSpatialForce(
     const geometry_msgs::msg::Wrench& wrench) {
   return drake::multibody::SpatialForce<double>(
-      RosVector3ToVector3(wrench.torque),
-      RosVector3ToVector3(wrench.force));
+      RosVector3ToVector3(wrench.torque), RosVector3ToVector3(wrench.force));
 }
 
 geometry_msgs::msg::Wrench SpatialForceToRosWrench(
