@@ -21,7 +21,12 @@ cc_library(
   strip_include_prefix = "include",
   srcs = glob(["src/*.cc", "src/*.h"]),
   deps = [
+    "@drake//common:essential",
+    "@drake//math:geometric_transform",
+    "@drake//multibody/math:spatial_algebra",
     "@drake//systems/framework:leaf_system",
+    "@eigen",
+    "@ros2//:geometry_msgs_cc",
     "@ros2//:rclcpp_cc",
     "@ros2//:rosidl_runtime_c_cc",
     "@ros2//:rosidl_typesupport_cpp_cc",
@@ -56,4 +61,15 @@ ros_cc_test(
   rmw_implementation = "rmw_cyclonedds_cpp",
   size = "small",
   srcs = ["test/test_drake_ros.cc"],
+)
+
+ros_cc_test(
+  name = "test_geometry_conversions",
+  deps = [
+    "@com_google_googletest//:gtest_main",
+    ":drake_ros_core",
+  ],
+  rmw_implementation = "rmw_cyclonedds_cpp",
+  size = "small",
+  srcs = ["test/test_geometry_conversions.cc"],
 )

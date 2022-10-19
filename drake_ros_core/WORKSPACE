@@ -23,6 +23,7 @@ load("@bazel_ros2_rules//ros2:defs.bzl", "ros2_archive")
 ros2_archive(
     name = "ros2",
     include_packages = [
+      "geometry_msgs",
       "rclpy",
       "rclcpp",
       "rosidl_runtime_c",

@@ -22,6 +22,36 @@ namespace {
 // N.B. For the purpose of testing type conversions, we should use explicit
 // typing (avoiding auto).
 
+// Simplified version of drake::CompareMatrices (which is not presently
+// installed).
+[[nodiscard]] ::testing::AssertionResult CompareMatrices(
+    const Eigen::MatrixXd& lhs,
+    const Eigen::MatrixXd& rhs,
+    double tolerance = 0.0) {
+  const auto diff = lhs.array() - rhs.array();
+  const auto exceeds = diff.abs() > tolerance;
+  if (exceeds.any()) {
+    // Maybe transpose for printing.
+    auto maybe_transpose = [](Eigen::MatrixXd v) -> Eigen::MatrixXd {
+      if (v.rows() > 1 && v.cols() == 1) {
+        return v.transpose();
+      } else {
+        return v;
+      }
+    };
+    return ::testing::AssertionFailure() << fmt::format(
+        "Matrices don't match to tolerance of {}.\n"
+        "lhs: {}\n\n"
+        "rhs: {}\n\n"
+        "lhs - rhs: {}\n\n",
+        tolerance,
+        maybe_transpose(lhs),
+        maybe_transpose(rhs),
+        maybe_transpose(lhs - rhs));
+  }
+  return ::testing::AssertionSuccess();
+}
+
 // Vector / Translation.
 
 Eigen::Vector3d MakeDummyVector3() {
@@ -81,11 +111,18 @@ geometry_msgs::msg::Quaternion MakeDummyRosQuaternion() {
   return message;
 }
 
+[[nodiscard]] ::testing::AssertionResult IsEqual(
+    const Eigen::Quaterniond& lhs,
+    const Eigen::Quaterniond& rhs) {
+  // N.B. Quaternion::coeffs() returns (x, y, z, w).
+  return CompareMatrices(lhs.coeffs(), rhs.coeffs());
+}
+
 TEST(GeometryConversions, Quaternion) {
   const geometry_msgs::msg::Quaternion message = MakeDummyRosQuaternion();
   const Eigen::Quaterniond value_expected = MakeDummyQuaternion();
   const Eigen::Quaterniond value = RosQuaternionToQuaternion(message);
-  EXPECT_EQ(value, value_expected);
+  EXPECT_TRUE(IsEqual(value, value_expected));
   EXPECT_EQ(message, QuaternionToRosQuaternion(value));
 }
 
@@ -97,36 +134,6 @@ drake::math::RotationMatrixd MakeDummyRotationMatrix() {
       0.0, 0.0, -1.0,
       0.0, 1.0, 0.0;
   return drake::math::RotationMatrixd(R);
-}
-
-// Simplified version of drake::CompareMatrices (which is not presently
-// installed).
-[[nodiscard]] ::testing::AssertionResult CompareMatrices(
-    const Eigen::MatrixXd& lhs,
-    const Eigen::MatrixXd& rhs,
-    double tolerance = 0.0) {
-  const auto diff = lhs.array() - rhs.array();
-  const auto exceeds = diff.abs() > tolerance;
-  if (exceeds.any()) {
-    // Maybe transpose for printing.
-    auto maybe_transpose = [](Eigen::MatrixXd v) -> Eigen::MatrixXd {
-      if (v.rows() > 1 && v.cols() == 1) {
-        return v.transpose();
-      } else {
-        return v;
-      }
-    };
-    return ::testing::AssertionFailure() << fmt::format(
-        "Matrices don't match to tolerance of {}.\n"
-        "lhs: {}\n\n"
-        "rhs: {}\n\n"
-        "lhs - rhs: {}\n\n",
-        tolerance,
-        maybe_transpose(lhs),
-        maybe_transpose(rhs),
-        maybe_transpose(lhs - rhs));
-  }
-  return ::testing::AssertionSuccess();
 }
 
 [[nodiscard]] ::testing::AssertionResult IsEqual(
