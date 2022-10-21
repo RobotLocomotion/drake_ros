@@ -23,7 +23,7 @@ with the Gazebo and broader ROS ecosystem:
 
 This code is prioritized for use within the TRI Dexterous Manipulation Group.
 We do not presently adhere to any stability commitment (e.g., deprecations,
-backports, etc.), so please use this code at your own disgression. (It's still
+backports, etc.), so please use this code at your own discretion. (It's still
 great code, of course!)
 
 Please note that this should be considered *second-party* to Drake; more
@@ -37,7 +37,4 @@ specifically:
 
 ## Contributing
 
-### Code style
-
-All code in this repository should generally comply with Drake's [code style
-guide](https://drake.mit.edu/code_style_guide.html).
+See [CONTRIBUTING](./CONTRIBUTING.md) documentation.
