@@ -24,10 +24,9 @@ find_package(rclcpp REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
 add_library(drake_ros_viz
+  src/name_conventions.cc
   src/rviz_visualizer.cc
   src/scene_markers_system.cc
-  src/utilities/name_conventions.cc
-  src/utilities/type_conversion.cc
 )
 
 target_link_libraries(drake_ros_viz PUBLIC
@@ -42,8 +41,11 @@ target_link_libraries(drake_ros_viz PUBLIC
 target_include_directories(drake_ros_viz
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
     "$<INSTALL_INTERFACE:include>"
+)
+target_include_directories(drake_ros_viz
+  PRIVATE
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
 )
 
 ament_export_include_directories(include)
@@ -110,13 +112,11 @@ if(BUILD_TESTING)
     ${visualization_msgs_TARGETS}
   )
 
-  ament_add_gtest(test_type_conversion test/test_type_conversion.cc)
-  target_link_libraries(test_type_conversion
-    drake::drake
-    drake_ros_viz
-  )
-
   ament_add_gtest(test_name_conventions test/test_name_conventions.cc)
+  target_include_directories(test_name_conventions
+    PRIVATE
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+  )
   target_link_libraries(test_name_conventions
     drake::drake
     drake_ros_viz

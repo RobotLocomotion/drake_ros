@@ -22,10 +22,9 @@ find_package(rclcpp REQUIRED)
 find_package(tf2_ros REQUIRED)
 
 add_library(drake_ros_tf2
-  src/scene_tf_system.cc
+  src/name_conventions.cc
   src/scene_tf_broadcaster_system.cc
-  src/utilities/name_conventions.cc
-  src/utilities/type_conversion.cc
+  src/scene_tf_system.cc
 )
 
 target_link_libraries(drake_ros_tf2 PUBLIC
@@ -39,8 +38,11 @@ target_link_libraries(drake_ros_tf2 PUBLIC
 target_include_directories(drake_ros_tf2
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
     "$<INSTALL_INTERFACE:include>"
+)
+target_include_directories(drake_ros_tf2
+  PRIVATE
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
 )
 
 ament_export_targets(drake_ros_tf2)
@@ -110,13 +112,11 @@ if(BUILD_TESTING)
 
   ament_add_pytest_test(test_tf_broadcaster_py test/test_tf_broadcaster.py)
 
-  ament_add_gtest(test_type_conversion test/test_type_conversion.cc)
-  target_link_libraries(test_type_conversion
-    drake_ros_tf2
-    drake::drake
-  )
-
   ament_add_gtest(test_name_conventions test/test_name_conventions.cc)
+  target_include_directories(test_name_conventions
+    PRIVATE
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+  )
   target_link_libraries(test_name_conventions
     drake_ros_tf2
     drake::drake

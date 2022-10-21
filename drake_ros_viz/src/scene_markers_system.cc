@@ -18,6 +18,7 @@
 #include <unordered_set>
 #include <utility>
 
+#include "drake_ros_core/geometry_conversions.h"
 #include <builtin_interfaces/msg/time.hpp>
 #include <drake/common/drake_copyable.h>
 #include <drake/common/eigen_types.h>
@@ -29,16 +30,17 @@
 #include <drake/geometry/shape_specification.h>
 #include <drake/math/rigid_transform.h>
 #include <drake/systems/framework/leaf_system.h>
-#include <drake_ros_tf2/utilities/name_conventions.h>
+#include <drake_ros_tf2/name_conventions.h>
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-#include "drake_ros_viz/utilities/name_conventions.h"
-#include "drake_ros_viz/utilities/type_conversion.h"
+#include "drake_ros_viz/name_conventions.h"
 
 namespace drake_ros_viz {
+
+using drake_ros_core::RigidTransformToRosPose;
 
 namespace {
 
@@ -120,7 +122,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     marker.scale.x = diameter;
     marker.scale.y = diameter;
     marker.scale.z = diameter;
-    marker.pose = ToPoseMsg(X_FG_);
+    marker.pose = RigidTransformToRosPose(X_FG_);
   }
 
   void ImplementGeometry(const drake::geometry::Ellipsoid& ellipsoid,
@@ -132,7 +134,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     marker.scale.x = 2. * ellipsoid.a();
     marker.scale.y = 2. * ellipsoid.b();
     marker.scale.z = 2. * ellipsoid.c();
-    marker.pose = ToPoseMsg(X_FG_);
+    marker.pose = RigidTransformToRosPose(X_FG_);
   }
 
   void ImplementGeometry(const drake::geometry::Cylinder& cylinder,
@@ -145,7 +147,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     marker.scale.x = diameter;
     marker.scale.y = diameter;
     marker.scale.z = cylinder.length();
-    marker.pose = ToPoseMsg(X_FG_);
+    marker.pose = RigidTransformToRosPose(X_FG_);
   }
 
   void ImplementGeometry(const drake::geometry::HalfSpace&, void*) override {
@@ -161,7 +163,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     const drake::math::RigidTransform<double> X_GH{
         drake::Vector3<double>{0., 0., -kHalfSpaceThickness / 2.}};
     const drake::math::RigidTransform<double> X_FH = X_FG_ * X_GH;
-    marker.pose = ToPoseMsg(X_FH);
+    marker.pose = RigidTransformToRosPose(X_FH);
   }
 
   void ImplementGeometry(const drake::geometry::Box& box, void*) override {
@@ -172,7 +174,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     marker.scale.x = box.width();
     marker.scale.y = box.depth();
     marker.scale.z = box.height();
-    marker.pose = ToPoseMsg(X_FG_);
+    marker.pose = RigidTransformToRosPose(X_FG_);
   }
 
   void ImplementGeometry(const drake::geometry::Capsule& capsule,
@@ -186,7 +188,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     body_marker.scale.x = diameter;
     body_marker.scale.y = diameter;
     body_marker.scale.z = capsule.length();
-    body_marker.pose = ToPoseMsg(X_FG_);
+    body_marker.pose = RigidTransformToRosPose(X_FG_);
 
     marker_array_->markers.push_back(prototype_marker_);
 
@@ -200,7 +202,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     const drake::math::RigidTransform<double> X_GU{
         drake::Vector3<double>{0., 0., capsule.length() / 2.}};
     const drake::math::RigidTransform<double> X_FU = X_FG_ * X_GU;
-    upper_cap_marker.pose = ToPoseMsg(X_FU);
+    upper_cap_marker.pose = RigidTransformToRosPose(X_FU);
 
     marker_array_->markers.push_back(upper_cap_marker);
 
@@ -210,7 +212,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     const drake::math::RigidTransform<double> X_GL{
         drake::Vector3<double>{0., 0., -capsule.length() / 2.}};
     const drake::math::RigidTransform<double> X_FL = X_FG_ * X_GL;
-    lower_cap_marker.pose = ToPoseMsg(X_FL);
+    lower_cap_marker.pose = RigidTransformToRosPose(X_FL);
   }
 
   void ImplementGeometry(const drake::geometry::Convex& convex,
@@ -224,7 +226,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     marker.scale.z = convex.scale();
     // Assume it is an absolute path and turn it into a file URL.
     marker.mesh_resource = "file://" + convex.filename();
-    marker.pose = ToPoseMsg(X_FG_);
+    marker.pose = RigidTransformToRosPose(X_FG_);
   }
 
   void ImplementGeometry(const drake::geometry::Mesh& mesh, void*) override {
@@ -237,7 +239,7 @@ class SceneGeometryToMarkers : public drake::geometry::ShapeReifier {
     marker.scale.z = mesh.scale();
     // Assume it is an absolute path and turn it into a file URL.
     marker.mesh_resource = "file://" + mesh.filename();
-    marker.pose = ToPoseMsg(X_FG_);
+    marker.pose = RigidTransformToRosPose(X_FG_);
   }
 
   const SceneMarkersParams& params_;

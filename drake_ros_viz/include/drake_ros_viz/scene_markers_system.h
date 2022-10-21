@@ -21,7 +21,7 @@
 #include <drake/geometry/rgba.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/systems/framework/leaf_system.h>
-#include <drake_ros_viz/utilities/name_conventions.h>
+#include <drake_ros_viz/name_conventions.h>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 namespace drake_ros_viz {

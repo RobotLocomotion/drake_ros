@@ -14,10 +14,10 @@
 
 #include <string>
 
-#include "utilities/internal_name_conventions.h"
+#include "internal_name_conventions.h"  // NOLINT(build/include_subdir)
 #include <gtest/gtest.h>
 
-#include "drake_ros_tf2/utilities/name_conventions.h"
+#include "drake_ros_tf2/name_conventions.h"
 
 using drake::geometry::FrameId;
 using drake::multibody::ModelInstanceIndex;

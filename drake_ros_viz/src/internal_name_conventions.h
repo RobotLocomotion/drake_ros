@@ -17,7 +17,7 @@
 #include <string>
 #include <unordered_set>
 
-#include "drake_ros_viz/utilities/name_conventions.h"
+#include "drake_ros_viz/name_conventions.h"
 
 namespace drake_ros_viz {
 namespace internal {

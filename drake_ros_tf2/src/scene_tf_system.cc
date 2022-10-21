@@ -16,15 +16,18 @@
 
 #include <unordered_set>
 
+#include "drake_ros_core/geometry_conversions.h"
 #include <drake/geometry/query_object.h>
 #include <drake/geometry/scene_graph_inspector.h>
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
 
-#include "drake_ros_tf2/utilities/name_conventions.h"
-#include "drake_ros_tf2/utilities/type_conversion.h"
+#include "drake_ros_tf2/name_conventions.h"
 
 namespace drake_ros_tf2 {
+
+using drake_ros_core::RigidTransformToRosTransform;
+
 class SceneTfSystem::Impl {
  public:
   std::unordered_set<const drake::multibody::MultibodyPlant<double>*> plants;
@@ -139,7 +142,8 @@ void SceneTfSystem::CalcSceneTf(const drake::systems::Context<double>& context,
             rclcpp::Time() + rclcpp::Duration::from_seconds(context.get_time());
         auto X_WP = query_object.GetPoseInParent(parent_frame.id);
         auto X_WC = query_object.GetPoseInParent(frame_id);
-        parent_frame.X_PC.transform = ToTransformMsg(X_WP.inverse() * X_WC);
+        parent_frame.X_PC.transform =
+            RigidTransformToRosTransform(X_WP.inverse() * X_WC);
         output_value->transforms.push_back(parent_frame.X_PC);
       } else {
         geometry_msgs::msg::TransformStamped transform;
@@ -150,8 +154,8 @@ void SceneTfSystem::CalcSceneTf(const drake::systems::Context<double>& context,
             inspector, impl_->plants, inspector.GetParentFrame(frame_id));
         transform.child_frame_id =
             GetTfFrameName(inspector, impl_->plants, frame_id);
-        transform.transform =
-            ToTransformMsg(query_object.GetPoseInParent(frame_id));
+        transform.transform = RigidTransformToRosTransform(
+            query_object.GetPoseInParent(frame_id));
         output_value->transforms.push_back(transform);
       }
     }

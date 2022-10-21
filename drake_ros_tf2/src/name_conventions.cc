@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drake_ros_tf2/utilities/name_conventions.h"
+#include "drake_ros_tf2/name_conventions.h"
 
 #include <sstream>
 #include <string>
 #include <unordered_set>
 
-#include "utilities/internal_name_conventions.h"
+#include "internal_name_conventions.h"  // NOLINT(build/include_subdir)
 
 namespace drake_ros_tf2 {
 
