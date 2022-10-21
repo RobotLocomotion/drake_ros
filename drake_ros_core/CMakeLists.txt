@@ -74,14 +74,14 @@ set(
 ament_environment_hooks("env-hooks/drake_library_path.sh.in")
 
 ### Python module path environment hook for pydrake
-get_executable_path(_python_interpreter Python3::Interpreter CONFIGURE)
+find_package(PythonInterp ${PYTHON_VERSION} REQUIRED)
 get_filename_component(DRAKE_INSTALL_PREFIX ${DRAKE_LIBRARY_DIR} DIRECTORY)
 set(_python_code
   "import sysconfig"
   "print(sysconfig.get_path('purelib', vars={'base': '${DRAKE_INSTALL_PREFIX}'}))"
 )
 execute_process(
-  COMMAND "${_python_interpreter}" "-c" "${_python_code}"
+  COMMAND "${PYTHON_EXECUTABLE}" "-c" "${_python_code}"
   OUTPUT_VARIABLE PYDRAKE_PYTHONPATH
   RESULT_VARIABLE _result
   OUTPUT_STRIP_TRAILING_WHITESPACE
