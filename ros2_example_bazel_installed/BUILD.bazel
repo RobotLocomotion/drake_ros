@@ -61,3 +61,10 @@ py_test(
         ":shimmed_sentinel_py",
     ],
 )
+
+ros_py_test(
+    name = "tf2_py_import_test",
+    srcs = ["test/tf2_py_import_test.py"],
+    main = "test/tf2_py_import_test.py",
+    deps = ["@ros2//:tf2_py_py"],
+)

@@ -50,6 +50,7 @@ ROS2_PACKAGES = [
     # Uncomment one and only one to change implementations
     "rmw_cyclonedds_cpp",
     # "rmw_fastrtps_cpp",
+    "tf2_py",
 ]
 
 ros2_archive(
