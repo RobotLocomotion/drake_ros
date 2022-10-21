@@ -1,0 +1,5 @@
+# Generated from template at drake_ros_core/env-hooks/pydrake_pythonpath.sh.in
+
+# Ensures the pydrake Python module can be found at runtime.
+# See RobotLocomotion/drake-ros#157 for more details.
+ament_prepend_unique_value "PYTHONPATH" "@PYDRAKE_PYTHONPATH@"
