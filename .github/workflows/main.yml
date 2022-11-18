@@ -17,8 +17,6 @@ jobs:
             ros_distro: rolling
           - os_code_name: jammy
             ros_distro: humble
-          - os_code_name: focal
-            ros_distro: galactic
     name: test_against_${{matrix.ros_distro}}_debs
     runs-on: ubuntu-latest
     container:

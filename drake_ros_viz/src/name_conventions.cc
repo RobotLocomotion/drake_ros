@@ -18,7 +18,7 @@
 #include <string>
 #include <unordered_set>
 
-#include "internal_name_conventions.h"  // NOLINT
+#include "internal_name_conventions.h"  // NOLINT(build/include)
 
 namespace drake_ros_viz {
 

@@ -14,7 +14,7 @@
 
 #include <string>
 
-#include "internal_name_conventions.h"  // NOLINT
+#include "internal_name_conventions.h"  // NOLINT(build/include)
 #include <gtest/gtest.h>
 
 TEST(NameConventions, CalcMarkerNamespace) {

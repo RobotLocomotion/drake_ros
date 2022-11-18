@@ -56,10 +56,9 @@ class Subscription final : public rclcpp::SubscriptionBase {
   void handle_loaned_message(void* loaned_message,
                              const rclcpp::MessageInfo& message_info) override;
 
-  // TODO(hidmic): use override keyword when support for ROS Galactic is dropped
-  virtual void handle_serialized_message(
+  void handle_serialized_message(
       const std::shared_ptr<rclcpp::SerializedMessage>& message,
-      const rclcpp::MessageInfo& message_info);
+      const rclcpp::MessageInfo& message_info) override;
 
   // Return the message borrowed in create_message.
   /** \param[in] message Shared pointer to the returned message. */
