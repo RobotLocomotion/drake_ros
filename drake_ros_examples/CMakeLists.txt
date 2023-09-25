@@ -23,6 +23,19 @@ add_subdirectory(examples/rs_flip_flop)
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)
   find_package(ament_cmake_cpplint REQUIRED)
+  find_package(ament_cmake_test REQUIRED)
+  find_package(Python3 COMPONENTS Interpreter)
+
+  macro(add_python_test test_name test_file)
+    ament_add_test("${test_name}"
+      COMMAND
+        "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/${test_file}"
+        "--junit-xml=${AMENT_TEST_RESULTS_DIR}/drake_ros_examples/${test_name}.xml"
+        "--junit-prefix=drake_ros_examples")
+  endmacro()
+
+  add_python_test(parse_ros_model_test test/parse_ros_model_test.py)
 
   ament_clang_format(CONFIG_FILE .clang-format)
   ament_cpplint()

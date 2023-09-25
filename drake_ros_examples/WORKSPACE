@@ -43,6 +43,7 @@ ROS_PACKAGES = DRAKE_ROS_REQUIRED_PACKAGES + [
     "rclcpp",
     "rclpy",
     "ros2cli_common_extensions",
+    "rviz_default_plugins",
     "rviz2",
     "tf2_ros",
     "tf2_ros_py",

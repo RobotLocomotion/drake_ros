@@ -1,4 +1,6 @@
-py_test(
+load("@ros2//:ros_py.bzl", "ros_py_test")
+
+ros_py_test(
     name = "drake_ros_py_import_test",
     srcs = ["test/drake_ros_py_import_test.py"],
     main = "test/drake_ros_py_import_test.py",
@@ -16,4 +18,14 @@ py_library(
         "@ros2//resources/rmw_isolation:rmw_isolation_py",
         "@rules_python//python/runfiles",
     ],
+)
+
+ros_py_test(
+    name = "parse_ros_model_test",
+    srcs = ["test/parse_ros_model_test.py"],
+    main = "test/parse_ros_model_test.py",
+    # TODO(eric.cousineau): Use a non-test resource and enable this test.
+    tags = ["manual"],
+    data = ["@ros2//:rviz_default_plugins_share"],
+    deps = ["@drake//bindings/pydrake"],
 )
