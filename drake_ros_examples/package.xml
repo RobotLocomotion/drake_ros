@@ -10,9 +10,12 @@
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
+  <depend>ament_index_cpp</depend>
   <depend>drake_ros</depend>
   <depend>std_msgs</depend>
   <depend>libgflags-dev</depend>
+
+  <exec_depend>rclcpp_components</exec_depend>
 
   <test_depend>ament_cmake_clang_format</test_depend>
   <test_depend>ament_lint_auto</test_depend>

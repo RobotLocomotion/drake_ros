@@ -1,0 +1,74 @@
+# -*- mode: python -*-
+# vi: set ft=python :
+
+load("@ros2//:ament_index.bzl", "ament_index_share_files")
+load("@ros2//:ros_cc.bzl", "ros_cc_binary")
+load("@ros2//:ros_py.bzl", "ros_py_binary", "ros_py_test")
+
+# We use `ament_index_share_files` so we can write code that can find
+# resources both when built by CMake and by Bazel.
+ament_index_share_files(
+    name = "rgbd_share",
+    package_name = "drake_ros_examples",
+    srcs = [":rgbd.sdf"],
+    strip_prefix = "examples/",
+)
+
+ros_cc_binary(
+    name = "rgbd",
+    srcs = ["rgbd.cc"],
+    data = [
+        ":rgbd_share",
+    ],
+    local_defines = ["BAZEL"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@drake//geometry:drake_visualizer",
+        "@drake//geometry/render_vtk:factory",
+        "@drake//multibody/parsing:parser",
+        "@drake//multibody/plant:multibody_plant_config_functions",
+        "@drake//systems/analysis:simulator",
+        "@drake//systems/framework:diagram_builder",
+        "@drake//systems/sensors:camera_info",
+        "@drake//systems/sensors:rgbd_sensor",
+        "@drake//visualization:visualization_config",
+        "@drake//visualization:visualization_config_functions",
+        "@drake_ros_repo//:drake_ros",
+        "@drake_ros_repo//core",
+        "@drake_ros_repo//viz",
+        "@gflags",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:sensor_msgs_cc",
+    ],
+)
+
+ros_py_binary(
+    name = "rgbd_py",
+    srcs = ["rgbd.py"],
+    data = [
+        ":rgbd_share",
+    ],
+    main = "rgbd.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@drake//bindings/pydrake",
+        "@drake_ros_repo//:drake_ros_py",
+        "@ros2//:rclpy_py",
+    ],
+)
+
+ros_py_test(
+    name = "rgbd_test",
+    srcs = ["test/rgbd_test.py"],
+    data = [
+        ":rgbd",
+        ":rgbd_py",
+    ],
+    main = "test/rgbd_test.py",
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        "@ros2//resources/bazel_ros_env:bazel_ros_env_py",
+    ],
+)

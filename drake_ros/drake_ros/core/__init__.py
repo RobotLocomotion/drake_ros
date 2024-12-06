@@ -1,5 +1,6 @@
 """Python wrapper for drake_ros.core."""
 
+from drake_ros._cc.core import CameraInfoSystem
 from drake_ros._cc.core import ClockSystem
 from drake_ros._cc.core import init
 from drake_ros._cc.core import CppNode
@@ -8,6 +9,7 @@ from drake_ros._cc.core import DrakeRos
 from drake_ros._cc.core import Isometry3ToRosPose
 from drake_ros._cc.core import Isometry3ToRosTransform
 from drake_ros._cc.core import QuaternionToRosQuaternion
+from drake_ros._cc.core import ImageSystem
 from drake_ros._cc.core import RigidTransformToRosPose
 from drake_ros._cc.core import RigidTransformToRosTransform
 from drake_ros._cc.core import RosAccelToSpatialAcceleration
@@ -107,12 +109,14 @@ RosSubscriberSystem.Make = _make_ros_subscriber_system
 
 
 __all__ = [
+    'CameraInfoSystem',
     'ClockSystem',
     'DrakeRosInterface',
     'Isometry3ToRosPose',
     'Isometry3ToRosTransform',
     'PySerializer',
     'QuaternionToRosQuaternion',
+    'ImageSystem',
     'RigidTransformToRosPose',
     'RigidTransformToRosTransform',
     'RosAccelToSpatialAcceleration',

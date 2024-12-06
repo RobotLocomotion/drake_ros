@@ -60,7 +60,7 @@ jobs:
         run: export ROS_DISTRO=humble; bazel build //...
         working-directory: drake_ros
       - name: Test drake_ros
-        run: export ROS_DISTRO=humble; bazel test //...
+        run: ../.github/config_display.sh; export ROS_DISTRO=humble; bazel test //... --test_env=DISPLAY=":1.0"
         working-directory: drake_ros
       - name: Clean up drake_ros
         run: bazel clean
@@ -78,7 +78,7 @@ jobs:
         run: bazel build //...
         working-directory: drake_ros_examples
       - name: Test drake_ros_examples
-        run: bazel test //...
+        run: ../.github/config_display.sh; bazel test //... --test_env=DISPLAY=":1.0"
         working-directory: drake_ros_examples
       - name: Clean up drake_ros_examples
         run: bazel clean

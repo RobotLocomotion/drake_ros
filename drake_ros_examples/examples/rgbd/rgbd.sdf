@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+  <model name="CartPole">
+    <!-- This sdf file produces a model with the default parameters as
+         documented in cart_pole_params_named_vector.yaml.
+         They MUST be kept in sync. -->
+    <link name="Cart">
+      <inertial>
+        <mass>10.0</mass>
+        <!-- For this model case, with the cart not having any rotational
+             degrees of freedom, the values of the inertia matrix do not
+             participate in the model. Therefore we just set them to zero
+             (or near to zero since sdformat does not allow exact zeroes
+             for inertia values). -->
+        <inertia>
+          <ixx>1.0e-20</ixx>
+          <iyy>1.0e-20</iyy>
+          <izz>1.0e-20</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="cart_visual">
+        <geometry>
+          <box>
+            <size>0.24 0.12 0.12</size>
+          </box>
+        </geometry>
+      </visual>
+      <collision name="cart_collision">
+        <geometry>
+          <box>
+            <size>0.24 0.12 0.12</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="camera_optical">
+      <pose>0.0 1.0 0.0 1.57 3.14 0.0</pose>
+    </link>
+
+    <link name="Pole">
+      <!-- The pole is modeled as a point mass at the end of a pole. -->
+      <!-- The length of the pole is 0.5 meters. -->
+      <pose>0 0 -0.5 0 0 0</pose>
+      <inertial>
+        <mass>1.0</mass>
+        <!-- A point mass has zero rotational inertia.
+             We must specify small values since otherwise sdformat throws an
+             exception. -->
+        <inertia>
+          <ixx>1.0e-20</ixx>
+          <iyy>1.0e-20</iyy>
+          <izz>1.0e-20</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="pole_point_mass">
+        <geometry>
+          <sphere>
+            <radius>0.05</radius>
+          </sphere>
+        </geometry>
+      </visual>
+      <collision name="pole_point_mass_collision">
+        <geometry>
+          <sphere>
+            <radius>0.05</radius>
+          </sphere>
+        </geometry>
+      </collision>
+      <visual name="pole_rod">
+        <pose>0 0 0.25 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.025</radius>
+            <length>0.5</length>
+          </cylinder>
+        </geometry>
+      </visual>
+      <collision name="pole_rod_collision">
+        <pose>0 0 0.25 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.025</radius>
+            <length>0.5</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="CartSlider" type="prismatic">
+      <parent>world</parent>
+      <child>Cart</child>
+      <axis>
+        <xyz>1.0 0.0 0.0</xyz>
+      </axis>
+    </joint>
+
+    <joint name="CameraOpicalFrame" type="fixed">
+      <parent>world</parent>
+      <child>camera_optical</child>
+    </joint>
+
+    <joint name="PolePin" type="revolute">
+      <!-- Pose of the joint frame in the pole's frame (located at the point
+           mass) -->
+      <pose>0 0 0.5 0 0 0</pose>
+      <parent>Cart</parent>
+      <child>Pole</child>
+      <axis>
+        <xyz>0.0 -1.0 0.0</xyz>
+        <limit>
+          <!-- The pole pin joint is not actuated. -->
+          <effort>0</effort>
+        </limit>
+      </axis>
+    </joint>
+  </model>
+</sdf>

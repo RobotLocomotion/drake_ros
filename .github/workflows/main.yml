@@ -23,6 +23,7 @@ jobs:
       image: robotlocomotion/drake:${{matrix.os_code_name}}
     env:
       PYTHONPATH:
+      DISPLAY: ':1.0'
     steps:
       - uses: actions/checkout@v4
       - name: Simplify apt upgrades
@@ -33,6 +34,8 @@ jobs:
           use-ros2-testing: "true"
       - name: Cope with Python 2 pollution
         run: apt-get update && apt-get install -y python-is-python3
+      - name: Configure display
+        run: .github/config_display.sh
       - name: Build and test all packages
         uses: ros-tooling/action-ros-ci@v0.3
         with:
@@ -51,6 +54,7 @@ jobs:
       image: robotlocomotion/drake:${{matrix.os_code_name}}
     env:
       PYTHONPATH:
+      DISPLAY: ':1.0'
     steps:
       - uses: actions/checkout@v4
       - name: Simplify apt upgrades
@@ -80,5 +84,6 @@ jobs:
           colcon build --event-handlers console_cohesion+
       - name: Test all packages
         run: |
+          .github/config_display.sh
           . /opt/ros/${{matrix.ros_distro}}/setup.sh
           colcon test --event-handlers console_cohesion+

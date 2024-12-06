@@ -10,6 +10,7 @@ cc_library(
         "@ros2//:rclcpp_cc",
         "@ros2//:rosidl_runtime_c_cc",
         "@ros2//:rosidl_typesupport_cpp_cc",
+        "@ros2//:sensor_msgs_cc",
     ],
 )
 
@@ -34,6 +35,8 @@ cc_library(
         "@drake//multibody/math:spatial_algebra",
         "@drake//systems/framework:diagram_builder",
         "@drake//systems/framework:leaf_system",
+        "@drake//systems/sensors:camera_info",
+        "@drake//systems/sensors:rgbd_sensor",
     ],
 )
 
@@ -49,6 +52,44 @@ ros_cc_test(
         "@drake//systems/framework:diagram_builder",
         "@ros2//:rclcpp_cc",
         "@ros2//:test_msgs_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
+)
+
+ros_cc_test(
+    name = "test_camera_info_system",
+    size = "small",
+    srcs = ["test/test_camera_info_system.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":core",
+        "@com_google_googletest//:gtest_main",
+        "@drake//geometry/render_vtk:factory",
+        "@drake//systems/analysis:simulator",
+        "@drake//systems/framework:diagram_builder",
+        "@drake//systems/sensors:camera_info",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:sensor_msgs_cc",
+        "@ros2//resources/rmw_isolation:rmw_isolation_cc",
+    ],
+)
+
+ros_cc_test(
+    name = "test_rgbd_system",
+    size = "small",
+    srcs = ["test/test_rgbd_system.cc"],
+    rmw_implementation = "rmw_cyclonedds_cpp",
+    deps = [
+        ":core",
+        "@com_google_googletest//:gtest_main",
+        "@drake//geometry/render_vtk:factory",
+        "@drake//multibody/plant:multibody_plant_config_functions",
+        "@drake//systems/analysis:simulator",
+        "@drake//systems/framework:diagram_builder",
+        "@drake//systems/sensors:camera_info",
+        "@drake//systems/sensors:rgbd_sensor",
+        "@ros2//:rclcpp_cc",
+        "@ros2//:sensor_msgs_cc",
         "@ros2//resources/rmw_isolation:rmw_isolation_cc",
     ],
 )

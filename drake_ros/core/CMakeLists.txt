@@ -1,10 +1,12 @@
 set(HEADERS
+  "camera_info_system.h"
   "clock_system.h"
   "drake_ros.h"
   "geometry_conversions.h"
   "geometry_conversions_pybind.h"
   "ros_idl_pybind.h"
   "publisher.h"
+  "image_system.h"
   "ros_interface_system.h"
   "ros_publisher_system.h"
   "ros_subscriber_system.h"
@@ -20,10 +22,12 @@ foreach(hdr ${HEADERS})
 endforeach()
 
 add_library(drake_ros_core
+  camera_info_system.cc
   clock_system.cc
   drake_ros.cc
   geometry_conversions.cc
   publisher.cc
+  image_system.cc
   ros_interface_system.cc
   ros_publisher_system.cc
   ros_subscriber_system.cc
@@ -37,6 +41,7 @@ target_link_libraries(drake_ros_core PUBLIC
   rclcpp::rclcpp
   rosidl_runtime_c::rosidl_runtime_c
   rosidl_typesupport_cpp::rosidl_typesupport_cpp
+  ${sensor_msgs_TARGETS}
 )
 
 target_include_directories(drake_ros_core
@@ -88,6 +93,17 @@ if(BUILD_TESTING)
   ament_add_gtest(test_geometry_conversions test/test_geometry_conversions.cc)
   target_link_libraries(test_geometry_conversions drake_ros_core)
 
+
+  ament_add_gtest(test_rgbd_system test/test_rgbd_system.cc)
+  target_compile_definitions(test_rgbd_system
+    PRIVATE
+    # We do not expose `rmw_isoliation` via CMake.
+    _TEST_DISABLE_RMW_ISOLATION
+  )
+  target_link_libraries(test_rgbd_system
+    drake_ros_core
+  )
+
   ament_add_gtest(test_clock_system test/test_clock_system.cc)
   target_compile_definitions(test_clock_system
     PRIVATE
@@ -95,6 +111,16 @@ if(BUILD_TESTING)
     _TEST_DISABLE_RMW_ISOLATION
   )
   target_link_libraries(test_clock_system
+    drake_ros_core
+  )
+
+  ament_add_gtest(test_camera_info_system test/test_camera_info_system.cc)
+  target_compile_definitions(test_camera_info_system
+    PRIVATE
+    # We do not expose `rmw_isoliation` via CMake.
+    _TEST_DISABLE_RMW_ISOLATION
+  )
+  target_link_libraries(test_camera_info_system
     drake_ros_core
   )
 endif()

@@ -23,6 +23,7 @@
   <depend>rosidl_runtime_c</depend>
   <depend>rosidl_typesupport_cpp</depend>
   <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>tf2_eigen</depend>
   <depend>visualization_msgs</depend>
 
