@@ -1218,6 +1218,7 @@ def rosidl_cc_support(
         interfaces,
         data,
         deps,
+        extra_deps,
         group = None,
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
@@ -1245,7 +1246,7 @@ def rosidl_cc_support(
         group = group or name,
         interfaces = interfaces,
         includes = [_make_public_label(dep, "_defs") for dep in deps],
-        deps = [_make_public_label(dep, "_cc") for dep in deps],
+        deps = [_make_public_label(dep, "_cc") for dep in deps] + extra_deps,
         cc_library_rule = cc_library_rule,
         **kwargs
     )
@@ -1268,7 +1269,7 @@ def rosidl_cc_support(
             deps = [_make_private_label(name, "__rosidl_cpp")] + [
                 _make_public_label(dep, "_cc")
                 for dep in deps
-            ],
+            ] + extra_deps,
             cc_binary_rule = cc_binary_rule,
             cc_library_rule = cc_library_rule,
             **kwargs
@@ -1302,7 +1303,7 @@ def rosidl_cc_support(
             deps = [_make_private_label(name, "__rosidl_cpp")] + [
                 _make_public_label(dep, "_cc")
                 for dep in deps
-            ],
+            ] + extra_deps,
             cc_binary_rule = cc_binary_rule,
             cc_library_rule = cc_library_rule,
             **kwargs
@@ -1333,7 +1334,7 @@ def rosidl_cc_support(
         deps = [_make_private_label(name, "__rosidl_cpp")] + [
             _make_public_label(dep, "_cc")
             for dep in deps
-        ],
+        ] + extra_deps,
         cc_binary_rule = cc_binary_rule,
         **kwargs
     )
@@ -1358,7 +1359,7 @@ def rosidl_cc_support(
             _make_public_label(name, "__rosidl_typesupport_cpp"),
         ] + typesupports.values(),
         data = data,
-        deps = [_make_private_label(name, "__rosidl_cpp")],
+        deps = [_make_private_label(name, "__rosidl_cpp")] + extra_deps,
         linkstatic = True,
         **kwargs
     )
@@ -1368,6 +1369,7 @@ def rosidl_py_support(
         interfaces,
         data,
         deps,
+        extra_deps,
         group = None,
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
@@ -1397,7 +1399,7 @@ def rosidl_py_support(
         group = group or name,
         interfaces = interfaces,
         includes = [_make_public_label(dep, "_defs") for dep in deps],
-        deps = [_make_public_label(dep, "_c") for dep in deps],
+        deps = [_make_public_label(dep, "_c") for dep in deps] + extra_deps,
         cc_library_rule = cc_library_rule,
         **kwargs
     )
@@ -1420,7 +1422,7 @@ def rosidl_py_support(
             deps = [_make_private_label(name, "__rosidl_c")] + [
                 _make_public_label(dep, "_c")
                 for dep in deps
-            ],
+            ] + extra_deps,
             cc_binary_rule = cc_binary_rule,
             cc_library_rule = cc_library_rule,
             **kwargs
@@ -1454,7 +1456,7 @@ def rosidl_py_support(
             deps = [_make_private_label(name, "__rosidl_c")] + [
                 _make_public_label(dep, "_c")
                 for dep in deps
-            ],
+            ] + extra_deps,
             cc_binary_rule = cc_binary_rule,
             cc_library_rule = cc_library_rule,
             **kwargs
@@ -1485,7 +1487,7 @@ def rosidl_py_support(
         deps = [_make_private_label(name, "__rosidl_c")] + [
             _make_public_label(dep, "_c")
             for dep in deps
-        ],
+        ] + extra_deps,
         cc_binary_rule = cc_binary_rule,
         **kwargs
     )
@@ -1511,7 +1513,7 @@ def rosidl_py_support(
         srcs = typesupports.values(),
         deps = [
             _make_private_label(name, "__rosidl_c"),
-        ] + typesupports.values(),
+        ] + typesupports.values() + extra_deps,
         linkstatic = True,
         **kwargs
     )
@@ -1527,7 +1529,7 @@ def rosidl_py_support(
         c_deps = [_make_public_label(name, "_c")] + [
             _make_public_label(dep, "_c")
             for dep in deps
-        ],
+        ] + extra_deps,
         cc_binary_rule = cc_binary_rule,
         cc_library_rule = cc_library_rule,
         py_library_rule = py_library_rule,
@@ -1539,6 +1541,7 @@ def rosidl_interfaces_group(
         interfaces,
         data = [],
         deps = [],
+        extra_deps = [],
         group = None,
         cc_binary_rule = native.cc_binary,
         cc_library_rule = native.cc_library,
@@ -1595,6 +1598,7 @@ def rosidl_interfaces_group(
         interfaces = interfaces,
         data = data,
         deps = deps,
+        extra_deps = extra_deps,
         group = group,
         cc_binary_rule = cc_binary_rule,
         cc_library_rule = cc_library_rule,
@@ -1608,6 +1612,7 @@ def rosidl_interfaces_group(
         # Add the C++ target so that we can support `ros2 bag record`.
         data = data + [cc_name],
         deps = deps,
+        extra_deps = extra_deps,
         group = group,
         cc_binary_rule = cc_binary_rule,
         cc_library_rule = cc_library_rule,
