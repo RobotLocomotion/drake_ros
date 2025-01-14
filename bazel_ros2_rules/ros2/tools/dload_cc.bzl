@@ -12,10 +12,19 @@ load(
     "get_dload_shim_attributes",
 )
 
+_ISOLATE_IMPORT = '#include "network_isolation/network_isolation.h"'
+_ISOLATE_CALL_OR_RETURN = """\
+if (!network_isolation::create_linux_namespaces()) {{
+  return -1;
+}}
+"""
+
 _REEXEC_TEMPLATE = """\
 #include "ros2/tools/dload_shim.h"
+CC_ISOLATE_IMPORT
 
 int main(int argc, const char * argv[]) {{
+  CC_ISOLATE_CALL
   const char * executable_path = "{executable_path}";
   std::vector<const char *> names = {names};
   std::vector<std::vector<const char *>> actions = {actions};
@@ -24,12 +33,23 @@ int main(int argc, const char * argv[]) {{
 }}
 """
 
+def _resolve_isolation(template, network_isolation):
+    isolate_import = ""
+    isolate_call = ""
+    if network_isolation:
+        isolate_import = _ISOLATE_IMPORT
+        isolate_call = _ISOLATE_CALL_OR_RETURN
+    template = template.replace("CC_ISOLATE_IMPORT", isolate_import)
+    template = template.replace("CC_ISOLATE_CALL", isolate_call)
+    return template
+
 def _to_cc_list(collection):
     """Turn collection into a C++ aggregate initializer expression."""
     return "{" + ", ".join(collection) + "}"
 
 def _dload_cc_reexec_impl(ctx):
-    return do_dload_shim(ctx, _REEXEC_TEMPLATE, _to_cc_list)
+    template = _resolve_isolation(_REEXEC_TEMPLATE, ctx.attr.network_isolation)
+    return do_dload_shim(ctx, template, _to_cc_list)
 
 dload_cc_reexec = rule(
     doc = """\
@@ -52,10 +72,12 @@ dload_cc_reexec = rule(
 
 _LDWRAP_TEMPLATE = """\
 #include "ros2/tools/dload_shim.h"
+CC_ISOLATE_IMPORT
 
 extern "C" int __real_main(int argc, char** argv);
 
 extern "C" int __wrap_main(int argc, char** argv) {{
+  CC_ISOLATE_CALL
   std::vector<const char*> names = {names};
   std::vector<std::vector<const char*>> actions = {actions};
   bazel_ros2_rules::ApplyEnvironmentActions(argv[0], names, actions);
@@ -64,7 +86,8 @@ extern "C" int __wrap_main(int argc, char** argv) {{
 """
 
 def _dload_cc_ldwrap_impl(ctx):
-    return do_dload_shim(ctx, _LDWRAP_TEMPLATE, _to_cc_list)
+    template = _resolve_isolation(_LDWRAP_TEMPLATE, ctx.attr.network_isolation)
+    return do_dload_shim(ctx, template, _to_cc_list)
 
 dload_cc_ldwrap = rule(
     doc = """\

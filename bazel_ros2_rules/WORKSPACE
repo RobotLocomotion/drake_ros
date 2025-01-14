@@ -15,3 +15,7 @@ http_archive(
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
+
+load("//deps:defs.bzl", "add_bazel_ros2_rules_dependencies")
+
+add_bazel_ros2_rules_dependencies()

@@ -34,6 +34,13 @@ jobs:
         run: du -hs $(readlink -f ~/.cache/bazel_ci) || true
 
       # Setup.
+      - name: Free up disk space
+        run: |
+          sudo rm -rf \
+          /usr/share/dotnet \
+          /opt/ghc \
+          /usr/local/share/boost \
+          "$AGENT_TOOLSDIRECTORY" || true
       - name: Simplify apt upgrades
         run: .github/simplify_apt_and_upgrades.sh
       - name: Configure drake_ros Bazel for CI

@@ -1,0 +1,33 @@
+cc_library(
+    name = "network_isolation_cc",
+    srcs = ["network_isolation.cc"],
+    hdrs = ["network_isolation.h"],
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "isolate",
+    srcs = ["isolate.cc"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":network_isolation_cc",
+    ],
+)
+
+# Create a CPython extension
+cc_binary(
+    name = "network_isolation_py.so",
+    srcs = ["network_isolation_py.cc"],
+    linkshared = True,
+    linkstatic = True,
+    deps = [
+        ":network_isolation_cc",
+        "@python_dev//:headers",
+    ],
+)
+
+py_library(
+    name = "network_isolation_py",
+    data = [":network_isolation_py.so"],
+    visibility = ["//visibility:public"],
+)

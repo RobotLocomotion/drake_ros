@@ -86,6 +86,28 @@ ros_cc_test(
     deps = ["@ros2//:console_bridge_vendor_cc"],
 )
 
+ros_py_binary(
+    name = "talker_listener_isolated_py",
+    srcs = ["test/talker_listener.py"],
+    main = "test/talker_listener.py",
+    deps = [
+        "@ros2//:rclpy_py",
+        "@ros2//:std_msgs_py",
+    ],
+)
+
+ros_py_test(
+    name = "network_isolation_test",
+    srcs = ["test/network_isolation_test.py"],
+    data = [
+        "@bazel_ros2_rules//network_isolation:isolate",
+    ],
+    main = "test/network_isolation_test.py",
+    deps = [
+        "//:talker_listener_isolated_py",
+    ],
+)
+
 # Provide a roll-up of all generated IDL types for `//tools:ros2`.
 py_library(
     name = "ros_msgs_all_py",
