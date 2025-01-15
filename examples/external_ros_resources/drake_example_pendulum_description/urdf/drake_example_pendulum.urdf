@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<robot name="drake_example_pendulum">
+  <link name="base_link">
+    <inertial>
+      <mass value="100"/>
+      <inertia ixx="33.583333"  ixy="0"  ixz="0" iyy="33.583333" iyz="0" izz="0.5" />
+    </inertial>
+
+    <visual>
+      <origin xyz="0 0 1" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://drake_example_pendulum_description/meshes/base_link.obj"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 1" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.1" length="2.0" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="j1" type="continuous">
+    <origin xyz="0.2 0 2" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="rod"/>
+  </joint>
+
+  <link name="rod">
+    <inertial>
+      <origin xyz="0 0 -0.75" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia ixx="0.188125"  ixy="0"  ixz="0" iyy="0.188125" iyz="0" izz="0.00125" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 -0.75" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.05" length="1.5" />
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 -1" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.05" length="1.5" />
+      </geometry>
+    </collision>
+  </link>
+</robot>

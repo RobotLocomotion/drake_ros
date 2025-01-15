@@ -1,0 +1,169 @@
+#!/bin/bash
+
+# Copyright (c) 2018, Massachusetts Institute of Technology.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the copyright holder nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+set -euxo pipefail
+
+ros_dashing=0
+ros_melodic=0
+
+while [ "${1:-}" != "" ]; do
+  case "$1" in
+    --ros-dashing)
+      ros_dashing=1
+      ;;
+    --ros-melodic)
+      ros_melodic=1
+      ;;
+    *)
+      echo 'Invalid command line argument' >&2
+      exit 1
+  esac
+  shift
+done
+
+if [[ "${EUID:-}" -ne 0 ]]; then
+  echo 'This script must be run as root' >&2
+  exit 2
+fi
+
+apt-get update
+apt-get install --no-install-recommends lsb-release
+
+if [[ "$(lsb_release -sc)" != 'bionic' ]]; then
+  echo 'This script requires Ubuntu 18.04 (Bionic Beaver)' >&2
+  exit 3
+fi
+
+# Install Drake dependencies.
+apt-get install --no-install-recommends $(cat <<EOF
+  ca-certificates
+  wget
+EOF
+)
+
+wget -O drake.tar.gz https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz
+trap 'rm -f drake.tar.gz' EXIT
+tar -xf drake.tar.gz -C /opt
+
+/opt/drake/share/drake/setup/install_prereqs
+
+# Install additional dependencies for development.
+apt-get install --no-install-recommends $(cat <<EOF
+  apt-transport-https
+  gnupg
+EOF
+)
+
+apt-key adv --fetch-keys https://bazel.build/bazel-release.pub.gpg
+echo 'deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8' \
+  > /etc/apt/sources.list.d/bazel.list
+
+apt-get update
+apt-get install --no-install-recommends $(cat <<EOF
+  bazel
+  ca-certificates
+  clang-format-9
+  cmake
+  coinor-libclp-dev
+  coinor-libcoinutils-dev
+  coinor-libipopt-dev
+  default-jdk
+  file
+  gfortran
+  git
+  libblas-dev
+  libbz2-dev
+  libclang-9-dev
+  libdouble-conversion-dev
+  libexpat1-dev
+  libfreetype6-dev
+  libgflags-dev
+  libgl1-mesa-dev
+  libglew-dev
+  libglib2.0-dev
+  libhdf5-dev
+  libjpeg-turbo8-dev
+  libjsoncpp-dev
+  liblapack-dev
+  liblz4-dev
+  liblzma-dev
+  libmumps-seq-dev
+  libnetcdf-dev
+  libnlopt-dev
+  libpng-dev
+  libqt5opengl5-dev
+  libqt5x11extras5-dev
+  libsuitesparse-dev
+  libtheora-dev
+  libtiff5-dev
+  libtinyxml-dev
+  libtool
+  libx11-dev
+  libxml2-dev
+  libxt-dev
+  libyaml-cpp-dev
+  locales
+  openssh-client
+  patch
+  patchelf
+  pkg-config
+  python3-all-dev
+  zlib1g-dev
+EOF
+)
+
+locale-gen en_US.UTF-8
+
+if [[ ${ros_melodic} -eq 1 ]]; then
+  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+  echo 'deb http://packages.ros.org/ros/ubuntu bionic main' > /etc/apt/sources.list.d/ros-latest.list
+
+  apt-get update
+  apt-get install --no-install-recommends ros-melodic-catkin
+else
+  apt-get install --no-install-recommends catkin python-pkg-resources
+fi
+
+if [[ ${ros_dashing} -eq 1 ]]; then
+  apt-key adv --fetch-keys https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc
+  echo 'deb http://packages.ros.org/ros2/ubuntu bionic main' > /etc/apt/sources.list.d/ros2-latest.list
+
+  apt-get update
+  apt-get install --no-install-recommends $(cat <<EOF
+  python3-colcon-common-extensions
+  ros-dashing-ament-cmake
+  ros-dashing-ament-cmake-gtest
+  ros-dashing-ament-cmake-lint-cmake
+  ros-dashing-ament-cmake-xmllint
+  ros-dashing-ament-lint-auto
+EOF
+  )
+fi
